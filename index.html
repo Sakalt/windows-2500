@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 2500</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #desktop {
+            width: 100vw;
+            height: 100vh;
+            background-image: url('wallpaper.jpg');
+            background-size: cover;
+            position: relative;
+        }
+
+        #taskbar {
+            width: 100%;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+        }
+
+        #start-button {
+            cursor: pointer;
+        }
+
+        #clock {
+            font-family: Arial, sans-serif;
+        }
+
+        #sidebar {
+            width: 60px;
+            height: calc(100% - 40px);
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+        }
+
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .window {
+            width: 400px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid black;
+            position: absolute;
+            top: 50px;
+            left: 100px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .window-header {
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 120, 215, 0.7);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            cursor: move;
+        }
+
+        .window-body {
+            flex: 1;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .window-header .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-header .window-controls .button {
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+
+        #timer-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #timer-window input {
+            width: 60%;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        #timer-display {
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        #paint-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #paint-canvas {
+            border: 1px solid black;
+        }
+
+        #paint-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #paint-controls select,
+        #paint-controls input[type="color"] {
+            margin: 0 10px;
+        }
+
+        #weather-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #weather-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #weather-list li {
+            margin: 5px 0;
+        }
+
+        #photo-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #photo-input {
+            margin-bottom: 10px;
+        }
+
+        #photo-display {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .minimized {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop">
+        <div id="taskbar">
+            <div id="start-button">Start</div>
+            <div id="clock"></div>
+        </div>
+        <div id="sidebar">
+            <div class="app-icon" id="timer-app">Timer</div>
+            <div class="app-icon" id="paint-app">Paint</div>
+            <div class="app-icon" id="weather-app">Weather</div>
+            <div class="app-icon" id="ai-app">AI</div>
+            <div class="app-icon" id="photo-app">Photo</div>
+            <div class="app-icon" id="browser-app">Browser</div>
+        </div>
+        <div id="windows"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 時間表示の設定
+            const clock = document.getElementById('clock');
+            setInterval(() => {
+                const now = new Date();
+                clock.textContent = now.toLocaleTimeString();
+            }, 1000);
+
+            // 各アプリの起動設定
+            const apps = {
+                timerApp: createTimerWindow,
+                paintApp: createPaintWindow,
+                weatherApp: createWeatherWindow,
+                aiApp: () => { window.open('https://chatgpt.com', '_blank'); },
+                photoApp: createPhotoWindow,
+                browserApp: createBrowserWindow,
+            };
+
+            for (const [appId, createWindowFunction] of Object.entries(apps)) {
+                document.getElementById(appId).addEventListener('click', createWindowFunction);
+            }
+
+            // スタートメニューの設定（簡単な例）
+            const startButton = document.getElementById('start-button');
+            startButton.addEventListener('click', () => {
+                alert('Start Menu Clicked!');
+            });
+
+            function createWindow(title, content) {
+                const windowsContainer = document.getElementById('windows');
+
+                const window = document.createElement('div');
+                window.classList.add('window');
+                window.innerHTML = `
+                    <div class="window-header">
+                        <span>${title}</span>
+                        <div class="window-controls">
+                            <span class="button minimize">_</span>
+                            <span class="button maximize">[ ]</span>
+                            <span class="button close">X</span>
+                        </div>
+                    </div>
+                    <div class="window-body">
+                        ${content}
+                    </div>
+                `;
+
+                // 閉じるボタン
+                window.querySelector('.close').addEventListener('click', () => {
+                    windowsContainer.removeChild(window);
+                });
+
+                // 最大化/最小化ボタン
+                const minimizeButton = window.querySelector('.minimize');
+                const maximizeButton = window.querySelector('.maximize');
+                let isMaximized = false;
+
+                minimizeButton.addEventListener('click', () => {
+                    window.classList.toggle('minimized');
+                });
+
+                maximizeButton.addEventListener('click', () => {
+                    if (isMaximized) {
+                        window.style.width = '400px';
+                        window.style.height = '300px';
+                        window.style.top = '50px';
+                        window.style.left = '100px';
+                    } else {
+                        window.style.width = '100vw';
+                        window.style.height = 'calc(100vh - 40px)';
+                        window.style.top = '0';
+                        window.style.left = '0';
+                    }
+                    isMaximized = !isMaximized;
+                });
+
+                // ドラッグ機能
+                let isDragging = false;
+                let offsetX, offsetY;
+
+                const header = window.querySelector('.window-header');
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    offsetX = e.clientX - window.getBoundingClientRect().left;
+                    offsetY = e.clientY - window.getBoundingClientRect().top;
+                    window.style.zIndex = 20;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        window.style.left = `${e.clientX - offsetX}px`;
+                        window.style.top = `${e.clientY - offsetY}px`;
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    window.style.zIndex = 10;
+                });
+
+                windowsContainer.appendChild(window);
+                return window;
+            }
+
+            function createTimerWindow() {
+                const timerWindow = createWindow('Timer', `
+                    <input type="number" id="timer-input" placeholder="秒数を入力" />
+                    <button id="start-timer">スタート</button>
+                    <div id="timer-display">00:00</div>
+                `);
+
+                const startTimerButton = timerWindow.querySelector('#start-timer');
+                startTimerButton.addEventListener('click', () => {
+                    const input = timerWindow.querySelector('#timer-input').value;
+                    startTimer(input, timerWindow);
+                });
+            }
+
+            function startTimer(seconds, timerWindow) {
+                const display = timerWindow.querySelector('#timer-display');
+                let remaining = parseInt(seconds, 10);
+                display.textContent = formatTime(remaining);
+
+                const interval = setInterval(() => {
+                    remaining--;
+                    display.textContent = formatTime(remaining);
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        alert('Time\'s up!');
+                    }
+                }, 1000);
+            }
+
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+
+            function createPaintWindow() {
+                const paintWindow = createWindow('Paint', `
+                    <canvas id="paint-canvas" width="300" height="200"></canvas>
+                    <div id="paint-controls">
+                        <select id="brush-size">
+                            <option value="2">2px</option>
+                            <option value="5">5px</option>
+                            <option value="10">10px</option>
+                            <option value="20">20px</option>
+                        </select>
+                        <input type="color" id="brush-color" value="#000000" />
+                    </div>
+                `);
+
+                const canvas = paintWindow.querySelector('#paint-canvas');
+                const ctx = canvas.getContext('2d');
+                const brushSize = paintWindow.querySelector('#brush-size');
+                const brushColor = paintWindow.querySelector('#brush-color');
+
+                let painting = false;
+
+                canvas.addEventListener('mousedown', () => {
+                    painting = true;
+                    ctx.beginPath();
+                });
+
+                canvas.addEventListener('mouseup', () => {
+                    painting = false;
+                    ctx.closePath();
+                });
+
+                canvas.addEventListener('mousemove', (e) => {
+                    if (painting) {
+                        ctx.lineWidth = brushSize.value;
+                        ctx.strokeStyle = brushColor.value;
+                        ctx.lineTo(e.offsetX, e.offsetY);
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            function createWeatherWindow() {
+                const weatherWindow = createWindow('Weather', `
+                    <ul id="weather-list"></ul>
+                `);
+
+                const weatherList = weatherWindow.querySelector('#weather-list');
+                const dummyData = [
+                    { day: 'Monday', condition: 'Sunny', temp: '25°C' },
+                    { day: 'Tuesday', condition: 'Cloudy', temp: '22°C' },
+                    { day: 'Wednesday', condition: 'Rainy', temp: '20°C' },
+                    { day: 'Thursday', condition: 'Windy', temp: '18°C' },
+                    { day: 'Friday', condition: 'Stormy', temp: '15°C' },
+                ];
+
+                dummyData.forEach((data) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${data.day}: ${data.condition}, ${data.temp}`;
+                    weatherList.appendChild(li);
+                });
+            }
+
+            function createPhotoWindow() {
+                const photoWindow = createWindow('Photo', `
+                    <input type="file" id="photo-input" accept="image/*" />
+                    <img id="photo-display" />
+                `);
+
+                const photoInput = photoWindow.querySelector('#photo-input');
+                const photoDisplay = photoWindow.querySelector('#photo-display');
+
+                photoInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            photoDisplay.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            function createBrowserWindow() {
+                const browserWindow = createWindow('Browser', `
+                    <input type="text" id="search-input" placeholder="検索ワードを入力" />
+                    <button id="search-button">検索</button>
+                    <iframe id="browser-frame" src="" width="100%" height="100%"></iframe>
+                `);
+
+                const searchInput = browserWindow.querySelector('#search-input');
+                const searchButton = browserWindow.querySelector('#search-button');
+                const browserFrame = browserWindow.querySelector('#browser-frame');
+
+                searchButton.addEventListener('click', () => {
+                    const query = searchInput.value;
+                    if (query) {
+                        browserFrame.src = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
