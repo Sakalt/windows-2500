@@ -139,12 +139,14 @@
         #paint-controls {
             margin-top: 10px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         #paint-controls select,
-        #paint-controls input[type="color"] {
-            margin: 0 10px;
+        #paint-controls input[type="color"],
+        #paint-controls button {
+            margin: 5px 0;
         }
 
         #weather-window .window-body {
@@ -179,6 +181,38 @@
             max-height: 100%;
         }
 
+        #explorer-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #file-input {
+            margin-bottom: 10px;
+        }
+
+        #file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #file-list li {
+            margin: 5px 0;
+        }
+
+        #ai-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ai-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .minimized {
             display: none;
         }
@@ -196,6 +230,7 @@
             <div class="app-icon" id="weather-app">Weather</div>
             <div class="app-icon" id="ai-app">AI</div>
             <div class="app-icon" id="photo-app">Photo</div>
+            <div class="app-icon" id="explorer-app">Explorer</div>
             <div class="app-icon" id="browser-app">Browser</div>
         </div>
         <div id="windows"></div>
@@ -214,8 +249,9 @@
                 'timer-app': createTimerWindow,
                 'paint-app': createPaintWindow,
                 'weather-app': createWeatherWindow,
-                'ai-app': () => { window.open('https://chatgpt.com', '_blank'); },
+                'ai-app': createAIWindow,
                 'photo-app': createPhotoWindow,
+                'explorer-app': createExplorerWindow,
                 'browser-app': createBrowserWindow,
             };
 
@@ -286,7 +322,6 @@
                     isDragging = true;
                     offsetX = e.clientX - window.getBoundingClientRect().left;
                     offsetY = e.clientY - window.getBoundingClientRect().top;
-                    window.style.zIndex = 20;
                 });
 
                 document.addEventListener('mousemove', (e) => {
@@ -298,125 +333,182 @@
 
                 document.addEventListener('mouseup', () => {
                     isDragging = false;
-                    window.style.zIndex = 10;
                 });
 
                 windowsContainer.appendChild(window);
-                return window;
             }
 
             function createTimerWindow() {
-                const timerWindow = createWindow('Timer', `
-                    <input type="number" id="timer-input" placeholder="秒数を入力" />
-                    <button id="start-timer">スタート</button>
-                    <div id="timer-display">00:00</div>
-                `);
+                const content = `
+                    <input type="number" id="timer-hours" placeholder="HH" min="0" max="23">
+                    <input type="number" id="timer-minutes" placeholder="MM" min="0" max="59">
+                    <input type="number" id="timer-seconds" placeholder="SS" min="0" max="59">
+                    <button id="start-timer">Start</button>
+                    <div id="timer-display">00:00:00</div>
+                `;
 
-                const startTimerButton = timerWindow.querySelector('#start-timer');
-                startTimerButton.addEventListener('click', () => {
-                    const input = timerWindow.querySelector('#timer-input').value;
-                    startTimer(input, timerWindow);
+                createWindow('Timer', content);
+
+                const startButton = document.getElementById('start-timer');
+                startButton.addEventListener('click', () => {
+                    const hours = parseInt(document.getElementById('timer-hours').value) || 0;
+                    const minutes = parseInt(document.getElementById('timer-minutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('timer-seconds').value) || 0;
+
+                    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                    function updateTimer() {
+                        if (totalSeconds > 0) {
+                            totalSeconds--;
+                            const h = Math.floor(totalSeconds / 3600);
+                            const m = Math.floor((totalSeconds % 3600) / 60);
+                            const s = totalSeconds % 60;
+                            document.getElementById('timer-display').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                        } else {
+                            document.getElementById('timer-display').textContent = 'Time\'s up!';
+                            clearInterval(timerInterval);
+                        }
+                    }
+
+                    updateTimer();
+                    const timerInterval = setInterval(updateTimer, 1000);
                 });
             }
 
-            function startTimer(seconds, timerWindow) {
-                const display = timerWindow.querySelector('#timer-display');
-                let remaining = parseInt(seconds, 10);
-                display.textContent = formatTime(remaining);
-
-                const interval = setInterval(() => {
-                    remaining--;
-                    display.textContent = formatTime(remaining);
-                    if (remaining <= 0) {
-                        clearInterval(interval);
-                        alert('Time\'s up!');
-                    }
-                }, 1000);
-            }
-
-            function formatTime(seconds) {
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            }
-
             function createPaintWindow() {
-                const paintWindow = createWindow('Paint', `
+                const content = `
                     <canvas id="paint-canvas" width="300" height="200"></canvas>
                     <div id="paint-controls">
                         <select id="brush-size">
-                            <option value="2">2px</option>
                             <option value="5">5px</option>
                             <option value="10">10px</option>
                             <option value="20">20px</option>
                         </select>
-                        <input type="color" id="brush-color" value="#000000" />
+                        <input type="color" id="brush-color" value="#000000">
+                        <select id="shape-select">
+                            <option value="free">Free Draw</option>
+                            <option value="rect">Rectangle</option>
+                            <option value="circle">Circle</option>
+                        </select>
+                        <button id="export-paint">Export</button>
                     </div>
-                `);
+                `;
 
-                const canvas = paintWindow.querySelector('#paint-canvas');
+                createWindow('Paint', content);
+
+                const canvas = document.getElementById('paint-canvas');
                 const ctx = canvas.getContext('2d');
-                const brushSize = paintWindow.querySelector('#brush-size');
-                const brushColor = paintWindow.querySelector('#brush-color');
-
                 let painting = false;
+                let shape = 'free';
 
-                canvas.addEventListener('mousedown', () => {
+                function startPosition(e) {
                     painting = true;
-                    ctx.beginPath();
-                });
+                    draw(e);
+                }
 
-                canvas.addEventListener('mouseup', () => {
+                function endPosition() {
                     painting = false;
-                    ctx.closePath();
-                });
+                    ctx.beginPath();
+                }
 
-                canvas.addEventListener('mousemove', (e) => {
-                    if (painting) {
-                        ctx.lineWidth = brushSize.value;
-                        ctx.strokeStyle = brushColor.value;
-                        ctx.lineTo(e.offsetX, e.offsetY);
+                function draw(e) {
+                    if (!painting) return;
+
+                    ctx.lineWidth = document.getElementById('brush-size').value;
+                    ctx.strokeStyle = document.getElementById('brush-color').value;
+                    ctx.lineCap = 'round';
+
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    if (shape === 'free') {
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                    } else if (shape === 'rect') {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+                        ctx.strokeRect(x, y, 100, 100); // Example rectangle
+                    } else if (shape === 'circle') {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+                        ctx.beginPath();
+                        ctx.arc(x, y, 50, 0, Math.PI * 2); // Example circle
                         ctx.stroke();
                     }
+                }
+
+                canvas.addEventListener('mousedown', startPosition);
+                canvas.addEventListener('mouseup', endPosition);
+                canvas.addEventListener('mousemove', draw);
+
+                document.getElementById('brush-size').addEventListener('change', () => {
+                    ctx.lineWidth = document.getElementById('brush-size').value;
+                });
+
+                document.getElementById('brush-color').addEventListener('change', () => {
+                    ctx.strokeStyle = document.getElementById('brush-color').value;
+                });
+
+                document.getElementById('shape-select').addEventListener('change', (e) => {
+                    shape = e.target.value;
+                });
+
+                document.getElementById('export-paint').addEventListener('click', () => {
+                    const dataURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = dataURL;
+                    link.download = 'paint.png';
+                    link.click();
+                });
+
+                // ローカルストレージからのロード
+                const savedImage = localStorage.getItem('paint-image');
+                if (savedImage) {
+                    const img = new Image();
+                    img.src = savedImage;
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0);
+                    };
+                }
+
+                // エクスポート時にローカルストレージに保存
+                document.getElementById('export-paint').addEventListener('click', () => {
+                    const dataURL = canvas.toDataURL('image/png');
+                    localStorage.setItem('paint-image', dataURL);
                 });
             }
 
             function createWeatherWindow() {
-                const weatherWindow = createWindow('Weather', `
-                    <ul id="weather-list"></ul>
-                `);
+                const content = `
+                    <ul id="weather-list">
+                        <li>Tokyo: 25°C</li>
+                        <li>New York: 30°C</li>
+                        <li>Paris: 22°C</li>
+                        <li>Moscow: 20°C</li>
+                    </ul>
+                `;
 
-                const weatherList = weatherWindow.querySelector('#weather-list');
-                const dummyData = [
-                    { day: 'Monday', condition: 'Sunny', temp: '25°C' },
-                    { day: 'Tuesday', condition: 'Cloudy', temp: '22°C' },
-                    { day: 'Wednesday', condition: 'Rainy', temp: '20°C' },
-                    { day: 'Thursday', condition: 'Windy', temp: '18°C' },
-                    { day: 'Friday', condition: 'Stormy', temp: '15°C' },
-                ];
-
-                dummyData.forEach((data) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${data.day}: ${data.condition}, ${data.temp}`;
-                    weatherList.appendChild(li);
-                });
+                createWindow('Weather', content);
             }
 
             function createPhotoWindow() {
-                const photoWindow = createWindow('Photo', `
-                    <input type="file" id="photo-input" accept="image/*" />
-                    <img id="photo-display" />
-                `);
+                const content = `
+                    <input type="file" id="photo-input" accept="image/*">
+                    <img id="photo-display" style="display: none;">
+                `;
 
-                const photoInput = photoWindow.querySelector('#photo-input');
-                const photoDisplay = photoWindow.querySelector('#photo-display');
+                createWindow('Photo', content);
+
+                const photoInput = document.getElementById('photo-input');
+                const photoDisplay = document.getElementById('photo-display');
 
                 photoInput.addEventListener('change', (event) => {
                     const file = event.target.files[0];
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = () => {
-                            photoDisplay.src = reader.result;
+                        reader.onload = function(e) {
+                            photoDisplay.src = e.target.result;
                             photoDisplay.style.display = 'block';
                         };
                         reader.readAsDataURL(file);
@@ -424,26 +516,42 @@
                 });
             }
 
-            function createBrowserWindow() {
-                const browserWindow = createWindow('Browser', `
-                    <input type="text" id="browser-url" placeholder="URLを入力" />
-                    <button id="browser-search">検索</button>
-                    <iframe id="browser-frame" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
-                `);
+            function createExplorerWindow() {
+                const content = `
+                    <input type="file" id="file-input" multiple>
+                    <ul id="file-list"></ul>
+                `;
 
-                const searchButton = browserWindow.querySelector('#browser-search');
-                const urlInput = browserWindow.querySelector('#browser-url');
-                const frame = browserWindow.querySelector('#browser-frame');
+                createWindow('Explorer', content);
 
-                searchButton.addEventListener('click', () => {
-                    frame.src = urlInput.value;
-                });
+                const fileInput = document.getElementById('file-input');
+                const fileList = document.getElementById('file-list');
 
-                urlInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        frame.src = urlInput.value;
+                fileInput.addEventListener('change', (event) => {
+                    const files = event.target.files;
+                    fileList.innerHTML = '';
+                    for (const file of files) {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = file.name;
+                        fileList.appendChild(listItem);
                     }
                 });
+            }
+
+            function createAIWindow() {
+                const content = `
+                    <iframe id="ai-frame" src="https://chatgpt.com" frameborder="0"></iframe>
+                `;
+
+                createWindow('AI', content);
+            }
+
+            function createBrowserWindow() {
+                const content = `
+                    <iframe id="browser-frame" src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+                `;
+
+                createWindow('Browser', content);
             }
         });
     </script>
