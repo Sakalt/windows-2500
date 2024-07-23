@@ -89,6 +89,7 @@
             padding: 0 10px;
             cursor: move;
             position: relative;
+            background: linear-gradient(to bottom, #4a90e2 0%, #003d7d 100%); /* グラデーションを追加 */
         }
 
         .window-body {
@@ -105,6 +106,18 @@
         .window-header .window-controls .button {
             cursor: pointer;
             padding: 2px 5px;
+            border-radius: 3px;
+            background: #fff; /* ボタンの背景色 */
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2); /* ボタンにシャドウを追加 */
+        }
+
+        .window-header .window-controls .button:hover {
+            background: #e0e0e0; /* ホバー時の背景色 */
+        }
+
+        .window-header .window-controls .button.close {
+            background: linear-gradient(to bottom, #f44336, #c62828); /* グラデーションの背景 */
+            color: white;
         }
 
         #timer-window .window-body {
@@ -213,6 +226,19 @@
             border: none;
         }
 
+        #browser-window .window-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #browser-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .minimized {
             display: none;
         }
@@ -291,115 +317,108 @@
 
                 // 最大化/最小化ボタン
                 const minimizeButton = window.querySelector('.minimize');
-                const maximizeButton = window.querySelector('.maximize');
-                let isMaximized = false;
-
                 minimizeButton.addEventListener('click', () => {
                     window.classList.toggle('minimized');
                 });
 
-                maximizeButton.addEventListener('click', () => {
-                    if (isMaximized) {
-                        window.style.width = '400px';
-                        window.style.height = '300px';
-                        window.style.top = '50px';
-                        window.style.left = '100px';
-                    } else {
-                        window.style.width = '100vw';
-                        window.style.height = 'calc(100vh - 40px)';
-                        window.style.top = '0';
-                        window.style.left = '0';
-                    }
-                    isMaximized = !isMaximized;
-                });
-
-                // ドラッグ機能
-                let isDragging = false;
-                let offsetX, offsetY;
-
-                const header = window.querySelector('.window-header');
-                header.addEventListener('mousedown', (e) => {
-                    isDragging = true;
-                    offsetX = e.clientX - window.getBoundingClientRect().left;
-                    offsetY = e.clientY - window.getBoundingClientRect().top;
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (isDragging) {
-                        window.style.left = `${e.clientX - offsetX}px`;
-                        window.style.top = `${e.clientY - offsetY}px`;
-                    }
-                });
-
-                document.addEventListener('mouseup', () => {
-                    isDragging = false;
-                });
-
                 windowsContainer.appendChild(window);
+
+                // ドラッグ操作の設定
+                dragElement(window);
+
+                function dragElement(elmnt) {
+                    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                    if (document.querySelector('.window-header')) {
+                        // 鼠标点击操作
+                        document.querySelector('.window-header').onmousedown = dragMouseDown;
+                    } else {
+                        // モバイルデバイス用
+                        elmnt.ontouchstart = dragMouseDown;
+                    }
+
+                    function dragMouseDown(e) {
+                        e.preventDefault();
+                        // 画面上のマウスまたはタッチの位置を取得
+                        pos3 = e.clientX || e.touches[0].clientX;
+                        pos4 = e.clientY || e.touches[0].clientY;
+                        document.onmouseup = closeDragElement;
+                        document.onmousemove = elementDrag;
+                        document.ontouchend = closeDragElement;
+                        document.ontouchmove = elementDrag;
+                    }
+
+                    function elementDrag(e) {
+                        e.preventDefault();
+                        // 新しい位置を計算
+                        pos1 = pos3 - (e.clientX || e.touches[0].clientX);
+                        pos2 = pos4 - (e.clientY || e.touches[0].clientY);
+                        pos3 = e.clientX || e.touches[0].clientX;
+                        pos4 = e.clientY || e.touches[0].clientY;
+                        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+                    }
+
+                    function closeDragElement() {
+                        // マウスアップまたはタッチ終了時の処理
+                        document.onmouseup = null;
+                        document.onmousemove = null;
+                        document.ontouchend = null;
+                        document.ontouchmove = null;
+                    }
+                }
             }
 
             function createTimerWindow() {
                 const content = `
-                    <input type="number" id="timer-hours" placeholder="HH" min="0" max="23">
-                    <input type="number" id="timer-minutes" placeholder="MM" min="0" max="59">
-                    <input type="number" id="timer-seconds" placeholder="SS" min="0" max="59">
+                    <input type="text" id="timer-input" placeholder="Enter time (seconds)">
                     <button id="start-timer">Start</button>
-                    <div id="timer-display">00:00:00</div>
+                    <div id="timer-display">00:00</div>
                 `;
-
                 createWindow('Timer', content);
 
                 const startButton = document.getElementById('start-timer');
                 startButton.addEventListener('click', () => {
-                    const hours = parseInt(document.getElementById('timer-hours').value) || 0;
-                    const minutes = parseInt(document.getElementById('timer-minutes').value) || 0;
-                    const seconds = parseInt(document.getElementById('timer-seconds').value) || 0;
-
-                    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
-
-                    function updateTimer() {
-                        if (totalSeconds > 0) {
-                            totalSeconds--;
-                            const h = Math.floor(totalSeconds / 3600);
-                            const m = Math.floor((totalSeconds % 3600) / 60);
-                            const s = totalSeconds % 60;
-                            document.getElementById('timer-display').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                        } else {
-                            document.getElementById('timer-display').textContent = 'Time\'s up!';
-                            clearInterval(timerInterval);
-                        }
+                    const input = document.getElementById('timer-input').value;
+                    const seconds = parseInt(input, 10);
+                    if (!isNaN(seconds) && seconds > 0) {
+                        startTimer(seconds);
                     }
-
-                    updateTimer();
-                    const timerInterval = setInterval(updateTimer, 1000);
                 });
+
+                function startTimer(duration) {
+                    let timer = duration, minutes, seconds;
+                    const display = document.getElementById('timer-display');
+                    setInterval(() => {
+                        minutes = parseInt(timer / 60, 10);
+                        seconds = parseInt(timer % 60, 10);
+                        minutes = minutes < 10 ? "0" + minutes : minutes;
+                        seconds = seconds < 10 ? "0" + seconds : seconds;
+                        display.textContent = minutes + ":" + seconds;
+                        if (--timer < 0) {
+                            timer = duration;
+                        }
+                    }, 1000);
+                }
             }
 
             function createPaintWindow() {
                 const content = `
-                    <canvas id="paint-canvas" width="300" height="200"></canvas>
+                    <canvas id="paint-canvas" width="300" height="300"></canvas>
                     <div id="paint-controls">
                         <select id="brush-size">
-                            <option value="5">5px</option>
-                            <option value="10">10px</option>
-                            <option value="20">20px</option>
+                            <option value="2">Small</option>
+                            <option value="5">Medium</option>
+                            <option value="10">Large</option>
                         </select>
                         <input type="color" id="brush-color" value="#000000">
-                        <select id="shape-select">
-                            <option value="free">Free Draw</option>
-                            <option value="rect">Rectangle</option>
-                            <option value="circle">Circle</option>
-                        </select>
-                        <button id="export-paint">Export</button>
+                        <button id="clear-canvas">Clear</button>
                     </div>
                 `;
-
                 createWindow('Paint', content);
 
                 const canvas = document.getElementById('paint-canvas');
                 const ctx = canvas.getContext('2d');
                 let painting = false;
-                let shape = 'free';
 
                 function startPosition(e) {
                     painting = true;
@@ -413,103 +432,53 @@
 
                 function draw(e) {
                     if (!painting) return;
-
                     ctx.lineWidth = document.getElementById('brush-size').value;
                     ctx.strokeStyle = document.getElementById('brush-color').value;
                     ctx.lineCap = 'round';
 
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-
-                    if (shape === 'free') {
-                        ctx.lineTo(x, y);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(x, y);
-                    } else if (shape === 'rect') {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
-                        ctx.strokeRect(x, y, 100, 100); // Example rectangle
-                    } else if (shape === 'circle') {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
-                        ctx.beginPath();
-                        ctx.arc(x, y, 50, 0, Math.PI * 2); // Example circle
-                        ctx.stroke();
-                    }
+                    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
                 }
 
                 canvas.addEventListener('mousedown', startPosition);
                 canvas.addEventListener('mouseup', endPosition);
                 canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseleave', endPosition);
 
-                document.getElementById('brush-size').addEventListener('change', () => {
-                    ctx.lineWidth = document.getElementById('brush-size').value;
-                });
-
-                document.getElementById('brush-color').addEventListener('change', () => {
-                    ctx.strokeStyle = document.getElementById('brush-color').value;
-                });
-
-                document.getElementById('shape-select').addEventListener('change', (e) => {
-                    shape = e.target.value;
-                });
-
-                document.getElementById('export-paint').addEventListener('click', () => {
-                    const dataURL = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.href = dataURL;
-                    link.download = 'paint.png';
-                    link.click();
-                });
-
-                // ローカルストレージからのロード
-                const savedImage = localStorage.getItem('paint-image');
-                if (savedImage) {
-                    const img = new Image();
-                    img.src = savedImage;
-                    img.onload = () => {
-                        ctx.drawImage(img, 0, 0);
-                    };
-                }
-
-                // エクスポート時にローカルストレージに保存
-                document.getElementById('export-paint').addEventListener('click', () => {
-                    const dataURL = canvas.toDataURL('image/png');
-                    localStorage.setItem('paint-image', dataURL);
+                document.getElementById('clear-canvas').addEventListener('click', () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                 });
             }
 
             function createWeatherWindow() {
                 const content = `
                     <ul id="weather-list">
-                        <li>Tokyo: 25°C</li>
-                        <li>New York: 30°C</li>
-                        <li>Paris: 22°C</li>
-                        <li>Moscow: 20°C</li>
+                        <li>New York: Sunny, 25°C</li>
+                        <li>London: Cloudy, 18°C</li>
+                        <li>Tokyo: Rainy, 22°C</li>
                     </ul>
                 `;
-
                 createWindow('Weather', content);
             }
 
             function createPhotoWindow() {
                 const content = `
                     <input type="file" id="photo-input" accept="image/*">
-                    <img id="photo-display" style="display: none;">
+                    <img id="photo-display" src="" alt="No Image" style="display:none;">
                 `;
-
                 createWindow('Photo', content);
 
-                const photoInput = document.getElementById('photo-input');
-                const photoDisplay = document.getElementById('photo-display');
-
-                photoInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
+                const input = document.getElementById('photo-input');
+                input.addEventListener('change', () => {
+                    const file = input.files[0];
                     if (file) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
-                            photoDisplay.src = e.target.result;
-                            photoDisplay.style.display = 'block';
+                            const img = document.getElementById('photo-display');
+                            img.src = e.target.result;
+                            img.style.display = 'block';
                         };
                         reader.readAsDataURL(file);
                     }
@@ -521,36 +490,31 @@
                     <input type="file" id="file-input" multiple>
                     <ul id="file-list"></ul>
                 `;
-
                 createWindow('Explorer', content);
 
                 const fileInput = document.getElementById('file-input');
-                const fileList = document.getElementById('file-list');
-
-                fileInput.addEventListener('change', (event) => {
-                    const files = event.target.files;
+                fileInput.addEventListener('change', () => {
+                    const fileList = document.getElementById('file-list');
                     fileList.innerHTML = '';
-                    for (const file of files) {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = file.name;
-                        fileList.appendChild(listItem);
-                    }
+                    Array.from(fileInput.files).forEach(file => {
+                        const li = document.createElement('li');
+                        li.textContent = file.name;
+                        fileList.appendChild(li);
+                    });
                 });
             }
 
             function createAIWindow() {
                 const content = `
-                    <iframe id="ai-frame" src="https://chatgpt.com" frameborder="0"></iframe>
+                    <iframe id="ai-frame" src="https://chatgpt.com/" frameborder="0"></iframe>
                 `;
-
                 createWindow('AI', content);
             }
 
             function createBrowserWindow() {
                 const content = `
-                    <iframe id="browser-frame" src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+                    <iframe id="browser-frame" src="https://www.bing.com/search?q=windows&cvid=6b84cec4ba7b4cf1822bae018f4681fe&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIGCAEQABhAMgYIAhAAGEAyBggDEAAYQDIGCAQQRRg8MgYIBRBFGDwyBggGEEUYPDIGCAcQRRg8MgYICBBFGDzSAQg1MzAyajBqNKgCCLACAQ&FORM=ANAB01&PC=EDGEDSE" frameborder="0"></iframe>
                 `;
-
                 createWindow('Browser', content);
             }
         });
