@@ -88,6 +88,7 @@
             align-items: center;
             padding: 0 10px;
             cursor: move;
+            position: relative;
         }
 
         .window-body {
@@ -210,12 +211,12 @@
 
             // 各アプリの起動設定
             const apps = {
-                timerApp: createTimerWindow,
-                paintApp: createPaintWindow,
-                weatherApp: createWeatherWindow,
-                aiApp: () => { window.open('https://chatgpt.com', '_blank'); },
-                photoApp: createPhotoWindow,
-                browserApp: createBrowserWindow,
+                'timer-app': createTimerWindow,
+                'paint-app': createPaintWindow,
+                'weather-app': createWeatherWindow,
+                'ai-app': () => { window.open('https://chatgpt.com', '_blank'); },
+                'photo-app': createPhotoWindow,
+                'browser-app': createBrowserWindow,
             };
 
             for (const [appId, createWindowFunction] of Object.entries(apps)) {
@@ -410,12 +411,13 @@
                 const photoInput = photoWindow.querySelector('#photo-input');
                 const photoDisplay = photoWindow.querySelector('#photo-display');
 
-                photoInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
+                photoInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = (e) => {
-                            photoDisplay.src = e.target.result;
+                        reader.onload = () => {
+                            photoDisplay.src = reader.result;
+                            photoDisplay.style.display = 'block';
                         };
                         reader.readAsDataURL(file);
                     }
@@ -424,19 +426,22 @@
 
             function createBrowserWindow() {
                 const browserWindow = createWindow('Browser', `
-                    <input type="text" id="search-input" placeholder="検索ワードを入力" />
-                    <button id="search-button">検索</button>
-                    <iframe id="browser-frame" src="" width="100%" height="100%"></iframe>
+                    <input type="text" id="browser-url" placeholder="URLを入力" />
+                    <button id="browser-search">検索</button>
+                    <iframe id="browser-frame" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
                 `);
 
-                const searchInput = browserWindow.querySelector('#search-input');
-                const searchButton = browserWindow.querySelector('#search-button');
-                const browserFrame = browserWindow.querySelector('#browser-frame');
+                const searchButton = browserWindow.querySelector('#browser-search');
+                const urlInput = browserWindow.querySelector('#browser-url');
+                const frame = browserWindow.querySelector('#browser-frame');
 
                 searchButton.addEventListener('click', () => {
-                    const query = searchInput.value;
-                    if (query) {
-                        browserFrame.src = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+                    frame.src = urlInput.value;
+                });
+
+                urlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        frame.src = urlInput.value;
                     }
                 });
             }
