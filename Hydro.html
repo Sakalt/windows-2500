@@ -110,13 +110,19 @@
         }
         #calculator-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 5px;
         }
         #calculator-buttons button {
             width: 100%;
             height: 50px;
             font-size: 18px;
+        }
+        #currency-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -223,7 +229,7 @@
             </div>
         </div>
         <div class="window-content">
-            <input type="file" id="font-file" accept=".ttf, .otf" onchange="uploadFont()" />
+            <input type="file" id="font-file" accept=".ttf,.otf" />
             <div id="font-preview"></div>
             <button onclick="translateText('font-upload')">翻訳</button>
         </div>
@@ -272,6 +278,10 @@
                 <button onclick="clearDisplay()">C</button>
                 <button onclick="calculateResult()">=</button>
                 <button onclick="performOperation('/')">/</button>
+            </div>
+            <div id="currency-buttons">
+                <button onclick="convertToDollar()">ドルに変換</button>
+                <button onclick="convertToEuro()">ユーロに変換</button>
             </div>
         </div>
     </div>
@@ -365,6 +375,26 @@
             document.getElementById('calc-display').value = displayValue;
             firstValue = '';
             pendingOperation = '';
+        }
+
+        // 通貨変換機能
+        const dollarRate = 155; // 仮のドル為替レート
+        const euroRate = 168; // 仮のユーロ為替レート
+
+        function convertToDollar() {
+            const value = parseFloat(displayValue);
+            if (!isNaN(value)) {
+                const convertedValue = (value / dollarRate).toFixed(2);
+                alert(`$${convertedValue}`);
+            }
+        }
+
+        function convertToEuro() {
+            const value = parseFloat(displayValue);
+            if (!isNaN(value)) {
+                const convertedValue = (value / euroRate).toFixed(2);
+                alert(`€${convertedValue}`);
+            }
         }
     </script>
 </body>
