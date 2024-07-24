@@ -50,30 +50,6 @@
             font-family: Arial, sans-serif;
         }
 
-        #sidebar {
-            width: 60px;
-            height: calc(100% - 40px);
-            background-color: rgba(0, 0, 0, 0.7);
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 10px;
-        }
-
-        .app-icon {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-            line-height: 40px;
-            cursor: pointer;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-
         #sidebar-vista {
             width: 200px;
             height: calc(100% - 40px);
@@ -85,6 +61,10 @@
             flex-direction: column;
             padding-top: 10px;
             color: white;
+        }
+
+        #windows {
+            position: relative;
         }
 
         .window {
@@ -205,6 +185,33 @@
             border: none;
         }
 
+        /* 円の中心に配置されたアプリ */
+        #app-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            border: 3px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 50%;
+            position: absolute;
+        }
+
         /* ボタンのアニメーション */
         #start-button:hover {
             background: #005bb5;
@@ -252,19 +259,20 @@
                 <img src="extensions-icon.png" alt="拡張機能">
             </div>
         </div>
-        <div id="sidebar">
-            <div class="app-icon" id="camera-app">📷</div>
-            <div class="app-icon" id="paint-app">🎨</div>
-            <div class="app-icon" id="browser-app">🌐</div>
-            <div class="app-icon" id="photo-app">🖼️</div>
-            <div class="app-icon" id="media-player-app">🎵</div>
-            <div class="app-icon" id="font-app">🔠</div>
-            <div class="app-icon" id="ai-app">🤖</div>
-            <div class="app-icon" id="minesweeper-app">💣</div>
-            <div class="app-icon" id="extensions-app">🔌</div>
-        </div>
         <div id="sidebar-vista">
             <!-- Vista風のサイドバー内容 -->
+        </div>
+        <div id="app-circle">
+            <!-- 中心に配置された円周にアプリを配置 -->
+            <div class="app-icon" style="top: 10%; left: 50%; transform: translate(-50%, -50%);" id="camera-app">📷</div>
+            <div class="app-icon" style="top: 30%; left: 85%; transform: translate(-50%, -50%);" id="paint-app">🎨</div>
+            <div class="app-icon" style="top: 50%; left: 90%; transform: translate(-50%, -50%);" id="browser-app">🌐</div>
+            <div class="app-icon" style="top: 70%; left: 85%; transform: translate(-50%, -50%);" id="photo-app">🖼️</div>
+            <div class="app-icon" style="top: 90%; left: 50%; transform: translate(-50%, -50%);" id="media-player-app">🎵</div>
+            <div class="app-icon" style="top: 70%; left: 15%; transform: translate(-50%, -50%);" id="font-app">🔤</div>
+            <div class="app-icon" style="top: 50%; left: 10%; transform: translate(-50%, -50%);" id="ai-app">🤖</div>
+            <div class="app-icon" style="top: 30%; left: 15%; transform: translate(-50%, -50%);" id="minesweeper-app">💣</div>
+            <div class="app-icon" style="top: 10%; left: 50%; transform: translate(-50%, -50%);" id="extensions-app">🔧</div>
         </div>
         <div id="windows">
             <!-- ウィンドウがここに生成される -->
