@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Sunset</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('sunset.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+            border-top: 1px solid #333;
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('sunset-logo.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid #555;
+            display: none;
+            z-index: 1000;
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 10px;
+            border-bottom: 1px solid #666;
+            cursor: pointer;
+            text-align: center;
+        }
+        #start-menu ul li:hover {
+            background-color: #333;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.8);
+            color: #000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: none;
+            width: 300px;
+            height: 400px;
+        }
+        .window-header {
+            background: #444;
+            color: #fff;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+        }
+        .window-header button {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .window-header button:hover {
+            background: #777;
+        }
+        .window-content {
+            padding: 10px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+        </ul>
+    </div>
+    <!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- ペイント内容 -->
+        </div>
+    </div>
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video autoplay style="width: 100%; height: 100%;"></video>
+        </div>
+    </div>
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button>音声認識開始</button>
+            <p>音声認識結果</p>
+        </div>
+    </div>
+    <script>
+        function openWindow(app) {
+            document.getElementById(app).style.display = 'block';
+            closeStartMenu();
+        }
+
+        function closeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+
+        function minimizeWindow(app) {
+            const win = document.getElementById(app);
+            win.style.height = '50px';
+            win.style.overflow = 'hidden';
+        }
+
+        function maximizeWindow(app) {
+            const win = document.getElementById(app);
+            win.style.height = '400px';
+            win.style.overflow = 'auto';
+        }
+
+        function closeStartMenu() {
+            document.getElementById('start-menu').style.display = 'none';
+        }
+
+        document.getElementById('start-btn').onclick = function() {
+            const menu = document.getElementById('start-menu');
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+        };
+    </script>
+</body>
+</html>
