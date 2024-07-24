@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Zeta</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('quadlen.png') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('follon.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 200px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        #start-menu ul li:last-child {
+            border-bottom: none;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #000;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            width: 300px;
+            height: 200px;
+        }
+        .window-header {
+            background: #333;
+            color: white;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+        }
+        .window-header button {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .window-header button:hover {
+            background: #666;
+        }
+        .window-content {
+            padding: 10px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+        #paint canvas {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        #text-extract img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('font-upload')">フォントアップロード</li>
+            <li onclick="openWindow('notes')">ノート</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+        </ul>
+    </div>
+    <!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <canvas id="paint-canvas"></canvas>
+            <button onclick="translateText('paint')">翻訳</button>
+        </div>
+    </div>
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video id="camera-feed" autoplay></video>
+            <button onclick="translateText('camera')">翻訳</button>
+        </div>
+    </div>
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button id="start-recognition">音声認識開始</button>
+            <p id="recognition-result"></p>
+            <button onclick="translateText('voice-recognition')">翻訳</button>
+        </div>
+    </div>
+    <!-- テキスト抽出 -->
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="upload-image" accept="image/*" onchange="extractTextFromImage()" />
+            <p id="extracted-text"></p>
+            <button onclick="translateText('text-extract')">翻訳</button>
+        </div>
+    </div>
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="browser-iframe" src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    <!-- フォントアップロード -->
+    <div id="font-upload" class="window">
+        <div class="window-header">
+            <span>フォントアップロード</span>
+            <div>
+                <button onclick="minimizeWindow('font-upload')">_</button>
+                <button onclick="maximizeWindow('font-upload')">[ ]</button>
+                <button onclick="closeWindow('font-upload')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="font-file" accept=".ttf, .otf" onchange="uploadFont()" />
+            <textarea id="sample-text" placeholder="ここにテキストを入力してフォントを試してください" style="width: 100%; height: 100px;"></textarea>
+        </div>
+    </div>
+    <!-- ノート -->
+    <div id="notes" class="window">
+        <div class="window-header">
+            <span>ノート</span>
+            <div>
+                <button onclick="minimizeWindow('notes')">_</button>
+                <button onclick="maximizeWindow('notes')">[ ]</button>
+                <button onclick="closeWindow('notes')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea id="notes-textarea" style="width: 100%; height: 100%;"></textarea>
+            <button onclick="translateText('notes')">翻訳</button>
+        </div>
+    </div>
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="calc-display" readonly style="width: 100%; font-size: 2em; text-align: right; margin-bottom: 10px;" />
+            <div>
+                <button onclick="calcInput('7')">7</button>
+                <button onclick="calcInput('8')">8</button>
+                <button onclick="calcInput('9')">9</button>
+                <button onclick="calcInput('/')">/</button>
+                <br/>
+                <button onclick="calcInput('4')">4</button>
+                <button onclick="calcInput('5')">5</button>
+                <button onclick="calcInput('6')">6</button>
+                <button onclick="calcInput('*')">*</button>
+                <br/>
+                <button onclick="calcInput('1')">1</button>
+                <button onclick="calcInput('2')">2</button>
+                <button onclick="calcInput('3')">3</button>
+                <button onclick="calcInput('-')">-</button>
+                <br/>
+                <button onclick="calcInput('0')">0</button>
+                <button onclick="calcInput('.')">.</button>
+                <button onclick="calculate()">=</button>
+                <button onclick="calcInput('+')">+</button>
+                <br/>
+                <button onclick="clearCalc()">C</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // スタートメニューの表示・非表示切り替え
+        document.getElementById('start-btn').addEventListener('click', function() {
+            var startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // ウィンドウ操作関数
+        function openWindow(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function minimizeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function maximizeWindow(id) {
+            var win = document.getElementById(id);
+            if (win.style.width === '100%' && win.style.height === '100%') {
+                win.style.width = '300px';
+                win.style.height = '200px';
+                win.style.top = 'initial';
+                win.style.left = 'initial';
+            } else {
+                win.style.width = '100%';
+                win.style.height = '100%';
+                win.style.top = '0';
+                win.style.left = '0';
+            }
+        }
+
+        // ペイント機能
+        var canvas = document.getElementById('paint-canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        var painting = false;
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!painting) return;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+
+            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+
+        // フォントアップロード
+        function uploadFont() {
+            var file = document.getElementById('font-file').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var font = new FontFace('CustomFont', event.target.result);
+                    font.load().then(function(loadedFont) {
+                        document.fonts.add(loadedFont);
+                        document.getElementById('sample-text').style.fontFamily = 'CustomFont';
+                    });
+                }
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // 音声認識機能
+        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ja-JP';
+
+        document.getElementById('start-recognition').addEventListener('click', function() {
+            recognition.start();
+        });
+
+        recognition.onresult = function(event) {
+            document.getElementById('recognition-result').textContent = event.results[0][0].transcript;
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event);
+        };
+
+        // テキスト抽出機能
+        function extractTextFromImage() {
+            var file = document.getElementById('upload-image').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        // OCR処理の例として、ここで画像からテキストを抽出します
+                        document.getElementById('extracted-text').textContent = '画像から抽出されたテキストがここに表示されます';
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 翻訳機能（ダミーの翻訳例）
+        function translateText(appId) {
+            var textContent = '';
+            switch (appId) {
+                case 'paint':
+                    textContent = 'ペイントアプリの内容';
+                    break;
+                case 'camera':
+                    textContent = 'カメラアプリの内容';
+                    break;
+                case 'voice-recognition':
+                    textContent = document.getElementById('recognition-result').textContent;
+                    break;
+                case 'text-extract':
+                    textContent = document.getElementById('extracted-text').textContent;
+                    break;
+                case 'notes':
+                    textContent = document.getElementById('notes-textarea').value;
+                    break;
+                case 'calculator':
+                    textContent = document.getElementById('calc-display').value;
+                    break;
+                default:
+                    return;
+            }
+            alert('翻訳機能は現在サポートされていません。翻訳対象: ' + textContent);
+        }
+
+        // 電卓機能
+        var calcInputStr = '';
+
+        function calcInput(value) {
+            calcInputStr += value;
+            document.getElementById('calc-display').value = calcInputStr;
+        }
+
+        function calculate() {
+            try {
+                var result = eval(calcInputStr);
+                document.getElementById('calc-display').value = result;
+                calcInputStr = result.toString();
+            } catch {
+                document.getElementById('calc-display').value = 'エラー';
+            }
+        }
+
+        function clearCalc() {
+            calcInputStr = '';
+            document.getElementById('calc-display').value = '';
+        }
+    </script>
+</body>
+</html>
