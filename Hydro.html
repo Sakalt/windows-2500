@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Hydro</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('image.png') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+            border-radius: 20px;
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('follon.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            background-color: #09aa11;
+            color: white;
+            text-align: center;
+        }
+        #start-menu ul li:last-child {
+            border-bottom: none;
+        }
+        #start-menu ul li:hover {
+            background-color: #078c0e;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #000;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            width: 300px;
+            height: 400px;
+        }
+        .window-header {
+            background: #333;
+            color: white;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+        }
+        .window-header button {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .window-header button:hover {
+            background: #666;
+        }
+        .window-content {
+            padding: 10px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+        button {
+            background-color: #09aa11;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #078c0e;
+        }
+        #calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        #calculator-buttons button {
+            width: 100%;
+            height: 50px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('font-upload')">フォントアップロード</li>
+            <li onclick="openWindow('notes')">ノート</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+        </ul>
+    </div>
+    <!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <canvas id="paint-canvas" style="width: 100%; height: calc(100% - 50px); border: 1px solid #000;"></canvas>
+            <button onclick="translateText('paint')">翻訳</button>
+        </div>
+    </div>
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video id="camera-feed" autoplay style="width: 100%; height: calc(100% - 50px);"></video>
+            <button onclick="translateText('camera')">翻訳</button>
+        </div>
+    </div>
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button id="start-recognition">音声認識開始</button>
+            <p id="recognition-result"></p>
+            <button onclick="translateText('voice-recognition')">翻訳</button>
+        </div>
+    </div>
+    <!-- テキスト抽出 -->
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="upload-image" accept="image/*" onchange="extractTextFromImage()" />
+            <p id="extracted-text"></p>
+            <button onclick="translateText('text-extract')">翻訳</button>
+        </div>
+    </div>
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="browser-iframe" src="https://www.bing.com" style="width: 100%; height: calc(100% - 50px); border: none;"></iframe>
+        </div>
+    </div>
+    <!-- フォントアップロード -->
+    <div id="font-upload" class="window">
+        <div class="window-header">
+            <span>フォントアップロード</span>
+            <div>
+                <button onclick="minimizeWindow('font-upload')">_</button>
+                <button onclick="maximizeWindow('font-upload')">[ ]</button>
+                <button onclick="closeWindow('font-upload')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="font-file" accept=".ttf, .otf" onchange="uploadFont()" />
+            <textarea id="sample-text" placeholder="ここにテキストを入力してフォントを試してください" style="width: 100%; height: 100px;"></textarea>
+        </div>
+    </div>
+    <!-- ノート -->
+    <div id="notes" class="window">
+        <div class="window-header">
+            <span>ノート</span>
+            <div>
+                <button onclick="minimizeWindow('notes')">_</button>
+                <button onclick="maximizeWindow('notes')">[ ]</button>
+                <button onclick="closeWindow('notes')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea id="notes-content" placeholder="ここにメモを入力" style="width: 100%; height: calc(100% - 50px);"></textarea>
+            <button onclick="translateText('notes')">翻訳</button>
+        </div>
+    </div>
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="calc-display" style="width: 100%; height: 50px; font-size: 24px;" disabled>
+            <div id="calculator-buttons">
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="performOperation('+')">+</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="performOperation('-')">-</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button onclick="performOperation('*')">*</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="clearDisplay()">C</button>
+                <button onclick="calculateResult()">=</button>
+                <button onclick="performOperation('/')">/</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ウィンドウ表示関数
+        function openWindow(app) {
+            document.getElementById(app).style.display = 'block';
+        }
+
+        // ウィンドウ閉じる関数
+        function closeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+
+        // ウィンドウ最小化関数
+        function minimizeWindow(app) {
+            document.getElementById(app).style.height = '40px';
+        }
+
+        // ウィンドウ最大化関数
+        function maximizeWindow(app) {
+            document.getElementById(app).style.height = '400px';
+        }
+
+        // テキスト翻訳関数
+        function translateText(app) {
+            alert(app + 'のテキストを翻訳します');
+        }
+
+        // 電卓機能
+        let displayValue = '';
+        let pendingOperation = '';
+        let firstValue = '';
+
+        function appendToDisplay(value) {
+            displayValue += value;
+            document.getElementById('calc-display').value = displayValue;
+        }
+
+        function performOperation(operation) {
+            if (firstValue === '') {
+                firstValue = displayValue;
+                displayValue = '';
+            }
+            pendingOperation = operation;
+        }
+
+        function calculateResult() {
+            let result = 0;
+            const secondValue = displayValue;
+
+            switch (pendingOperation) {
+                case '+':
+                    result = parseFloat(firstValue) + parseFloat(secondValue);
+                    break;
+                case '-':
+                    result = parseFloat(firstValue) - parseFloat(secondValue);
+                    break;
+                case '*':
+                    result = parseFloat(firstValue) * parseFloat(secondValue);
+                    break;
+                case '/':
+                    result = parseFloat(firstValue) / parseFloat(secondValue);
+                    break;
+            }
+
+            displayValue = result.toString();
+            document.getElementById('calc-display').value = displayValue;
+            firstValue = '';
+            pendingOperation = '';
+        }
+
+        function clearDisplay() {
+            displayValue = '';
+            document.getElementById('calc-display').value = displayValue;
+            firstValue = '';
+            pendingOperation = '';
+        }
+    </script>
+</body>
+</html>
