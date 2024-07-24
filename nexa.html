@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Nexa</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('A_sunset_OS_desktop_background_featuring_a_gradien.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .desktop {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .taskbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .start-button {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .start-menu {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            left: 10px;
+            width: 200px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .app {
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .window {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 600px;
+            height: 400px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 10px;
+            resize: both;
+            overflow: hidden;
+        }
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #09aa11;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px 5px 0 0;
+            cursor: move;
+        }
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .control-button {
+            cursor: pointer;
+        }
+        .active-app {
+            border-bottom: 2px solid #00f;
+        }
+        .language-switch {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <div class="taskbar">
+            <div class="start-button" onclick="toggleStartMenu()">
+                🌅
+            </div>
+        </div>
+        <div class="start-menu" id="start-menu">
+            <div class="app" onclick="openApp('camera')">📷 カメラ / Camera</div>
+            <div class="app" onclick="openApp('browser')">🌐 ブラウザ / Browser</div>
+            <div class="app" onclick="openApp('ai')">🤖 AIアシスタント / AI Assistant</div>
+            <div class="app" onclick="openApp('textextract')">📝 テキスト抽出 / Text Extract</div>
+            <div class="app" onclick="openApp('voice')">🎤 音声認識 / Voice Recognition</div>
+            <div class="app" onclick="openApp('notepad')">🗒️ メモ帳 / Notepad</div>
+            <div class="app" onclick="openApp('taskmanager')">📊 タスクマネージャー / Task Manager</div>
+            <div class="app" onclick="openApp('weather')">☀️ 天気 / Weather</div>
+            <div class="app" onclick="openApp('news')">📰 ニュース / News</div>
+        </div>
+        <div class="window" id="camera-window">
+            <div class="window-header">
+                <span>📷 カメラ / Camera</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('camera')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('camera')">🗖</span>
+                    <span class="control-button" onclick="closeApp('camera')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <video id="camera-stream" width="100%" height="100%" autoplay></video>
+            </div>
+        </div>
+        <div class="window" id="browser-window">
+            <div class="window-header">
+                <span>🌐 ブラウザ / Browser</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('browser')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('browser')">🗖</span>
+                    <span class="control-button" onclick="closeApp('browser')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <iframe src="https://www.bing.com" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+        <div class="window" id="ai-window">
+            <div class="window-header">
+                <span>🤖 AIアシスタント / AI Assistant</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('ai')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('ai')">🗖</span>
+                    <span class="control-button" onclick="closeApp('ai')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>AI Assistant is running...</p>
+            </div>
+        </div>
+        <div class="window" id="textextract-window">
+            <div class="window-header">
+                <span>📝 テキスト抽出 / Text Extract</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('textextract')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('textextract')">🗖</span>
+                    <span class="control-button" onclick="closeApp('textextract')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>Text Extract is running...</p>
+            </div>
+        </div>
+        <div class="window" id="voice-window">
+            <div class="window-header">
+                <span>🎤 音声認識 / Voice Recognition</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('voice')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('voice')">🗖</span>
+                    <span class="control-button" onclick="closeApp('voice')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>Voice Recognition is running...</p>
+            </div>
+        </div>
+        <div class="window" id="notepad-window">
+            <div class="window-header">
+                <span>🗒️ メモ帳 / Notepad</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('notepad')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('notepad')">🗖</span>
+                    <span class="control-button" onclick="closeApp('notepad')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <textarea id="notepad-textarea" style="width: 100%; height: 100%;"></textarea>
+            </div>
+        </div>
+        <div class="window" id="taskmanager-window">
+            <div class="window-header">
+                <span>📊 タスクマネージャー / Task Manager</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('taskmanager')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('taskmanager')">🗖</span>
+                    <span class="control-button" onclick="closeApp('taskmanager')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>Task Manager is running...</p>
+            </div>
+        </div>
+        <div class="window" id="weather-window">
+            <div class="window-header">
+                <span>☀️ 天気 / Weather</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('weather')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('weather')">🗖</span>
+                    <span class="control-button" onclick="closeApp('weather')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>Weather is running...</p>
+            </div>
+        </div>
+        <div class="window" id="news-window">
+            <div class="window-header">
+                <span>📰 ニュース / News</span>
+                <div class="window-controls">
+                    <span class="control-button" onclick="minimizeApp('news')">➖</span>
+                    <span class="control-button" onclick="maximizeApp('news')">🗖</span>
+                    <span class="control-button" onclick="closeApp('news')">❌</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>News is running...</p>
+            </div>
+        </div>
+        <div class="language-switch" onclick="switchLanguage()">🌐 日本語 / English</div>
+    </div>
+
+    <script>
+        let language = 'ja';
+
+        function toggleStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function openApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            const taskbarIcons = document.querySelectorAll('.taskbar-icon');
+            taskbarIcons.forEach(icon => icon.classList.remove('active-app'));
+            appWindow.style.display = 'block';
+            document.querySelector(`.start-menu .app[onclick="openApp('${appId}')"]`).classList.add('active-app');
+        }
+
+        function closeApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            appWindow.style.display = 'none';
+            document.querySelector(`.start-menu .app[onclick="openApp('${appId}')"]`).classList.remove('active-app');
+        }
+
+        function minimizeApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            appWindow.style.display = 'none';
+            document.querySelector(`.start-menu .app[onclick="openApp('${appId}')"]`).classList.remove('active-app');
+        }
+
+        function maximizeApp(appId) {
+            const appWindow = document.getElementById(`${appId}-window`);
+            if (appWindow.style.width === '100%' && appWindow.style.height === '100%') {
+                appWindow.style.width = '600px';
+                appWindow.style.height = '400px';
+            } else {
+                appWindow.style.width = '100%';
+                appWindow.style.height = '100%';
+            }
+        }
+
+        function switchLanguage() {
+            language = language === 'ja' ? 'en' : 'ja';
+            const elements = document.querySelectorAll('.start-menu .app');
+            elements.forEach(element => {
+                const text = element.textContent;
+                if (language === 'en') {
+                    element.textContent = text.split(' / ')[1];
+                } else {
+                    element.textContent = text.split(' / ')[0];
+                }
+            });
+        }
+    </script>
+</body>
+</html>
