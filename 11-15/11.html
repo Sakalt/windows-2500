@@ -8,7 +8,8 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1224cc;
+            background: url('11-15/windows11-background.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: #000;
         }
         #taskbar {
@@ -17,14 +18,14 @@
             left: 0;
             width: 100%;
             height: 60px;
-            background-color: #0078d7;
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             align-items: center;
             padding: 0 10px;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
         }
         #start-btn {
-            background: url('start.png') no-repeat center center;
+            background: url('windows13-start-icon.png') no-repeat center center;
             width: 40px;
             height: 40px;
             background-size: contain;
@@ -35,8 +36,8 @@
             bottom: 70px;
             left: 10px;
             width: 300px;
-            background-color: #fff;
-            border: 1px solid #ccc;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid #444;
             display: none;
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.5);
@@ -48,28 +49,30 @@
         }
         #start-menu ul li {
             padding: 15px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #555;
             cursor: pointer;
+            color: #fff;
         }
         #start-menu ul li:hover {
-            background-color: #f0f0f0;
+            background-color: #333;
         }
         .window {
             position: absolute;
-            border: 1px solid #ccc;
-            background: #fff;
+            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.9);
             color: #000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.5);
             display: none;
-            width: 400px;
-            height: 300px;
+            width: 320px;
+            height: 400px;
             top: 10%;
             left: 50%;
             transform: translateX(-50%);
             border-radius: 8px;
+            cursor: move; /* ドラッグを可能にするためのカーソル */
         }
         .window-header {
-            background: #0078d7;
+            background: #0078d4;
             color: #fff;
             padding: 10px;
             cursor: move;
@@ -80,23 +83,31 @@
             border-top-right-radius: 8px;
         }
         .window-header button {
-            background: #fff;
-            color: #0078d7;
+            background: #e64a19;
+            color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 4px;
         }
         .window-header button:hover {
-            background: #e1e1e1;
+            background: #d32f2f;
         }
         .window-content {
             padding: 10px;
             height: calc(100% - 40px);
             overflow: auto;
         }
+        textarea {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
         #calculator-buttons button {
-            background: #0078d7;
+            background: #0078d4;
             color: #fff;
             border: none;
             padding: 10px;
@@ -107,36 +118,169 @@
         #calculator-buttons button:hover {
             background: #005a9e;
         }
+        #weather p, #file-explorer p {
+            font-size: 16px;
+        }
+        #control-panel input {
+            width: calc(100% - 22px);
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        /* サイドバー */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        #sidebar iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
+    <!-- タスクバー -->
     <div id="taskbar">
         <div id="start-btn"></div>
-        <div id="taskbar-icons">
-            <span>アプリ</span>
-        </div>
     </div>
+
+    <!-- スタートメニュー -->
     <div id="start-menu">
         <ul>
-            <li onclick="openWindow('notepad')">メモ帳</li>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
             <li onclick="openWindow('calculator')">電卓</li>
-            <li onclick="openWindow('control-panel')">コントロールパネル</li>
+            <!-- 追加のアプリケーションがあればここにリストを追加 -->
         </ul>
     </div>
-    <!-- メモ帳 -->
-    <div id="notepad" class="window">
+
+    <!-- サイドバー（Bing Copilot） -->
+    <div id="sidebar">
+        <iframe src="https://www.bing.com/copilot" title="Bing Copilot"></iframe>
+    </div>
+
+    <!-- ウィンドウ -->
+    <!-- ペイント -->
+    <div id="paint" class="window">
         <div class="window-header">
-            <span>メモ帳</span>
+            <span>ペイント</span>
             <div>
-                <button onclick="minimizeWindow('notepad')">_</button>
-                <button onclick="maximizeWindow('notepad')">[ ]</button>
-                <button onclick="closeWindow('notepad')">X</button>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
             </div>
         </div>
         <div class="window-content">
-            <textarea></textarea>
+            <canvas id="paint-canvas"></canvas>
+            <script>
+                const canvas = document.getElementById('paint-canvas');
+                const ctx = canvas.getContext('2d');
+                let painting = false;
+
+                canvas.width = 300;
+                canvas.height = 300;
+
+                function startPosition(e) {
+                    painting = true;
+                    draw(e);
+                }
+                function endPosition() {
+                    painting = false;
+                    ctx.beginPath();
+                }
+                function draw(e) {
+                    if (!painting) return;
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#ff5722';
+
+                    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                }
+                canvas.addEventListener('mousedown', startPosition);
+                canvas.addEventListener('mouseup', endPosition);
+                canvas.addEventListener('mousemove', draw);
+            </script>
         </div>
     </div>
+
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>カメラ機能を表示するセクション</p>
+        </div>
+    </div>
+
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>音声認識機能を表示するセクション</p>
+        </div>
+    </div>
+
+    <!-- テキスト抽出 -->
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>テキスト抽出機能を表示するセクション</p>
+        </div>
+    </div>
+
     <!-- 電卓 -->
     <div id="calculator" class="window">
         <div class="window-header">
@@ -148,111 +292,112 @@
             </div>
         </div>
         <div class="window-content">
-            <input type="text" id="calculator-display" readonly>
+            <input type="text" id="calc-display" readonly>
             <div id="calculator-buttons">
-                <button onclick="appendToDisplay('7')">7</button>
-                <button onclick="appendToDisplay('8')">8</button>
-                <button onclick="appendToDisplay('9')">9</button>
-                <button onclick="appendToDisplay('/')">/</button>
-                <button onclick="appendToDisplay('4')">4</button>
-                <button onclick="appendToDisplay('5')">5</button>
-                <button onclick="appendToDisplay('6')">6</button>
-                <button onclick="appendToDisplay('*')">*</button>
                 <button onclick="appendToDisplay('1')">1</button>
                 <button onclick="appendToDisplay('2')">2</button>
                 <button onclick="appendToDisplay('3')">3</button>
-                <button onclick="appendToDisplay('-')">-</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
                 <button onclick="appendToDisplay('0')">0</button>
-                <button onclick="appendToDisplay('.')">.</button>
                 <button onclick="appendToDisplay('+')">+</button>
+                <button onclick="appendToDisplay('-')">-</button>
+                <button onclick="appendToDisplay('*')">*</button>
+                <button onclick="appendToDisplay('/')">/</button>
                 <button onclick="calculate()">=</button>
+                <button onclick="clearDisplay()">C</button>
+                <button onclick="convertCurrency()">$ / €</button>
             </div>
-            <div>
-                <button onclick="convertCurrency()">通貨変換</button>
-            </div>
+            <script>
+                const display = document.getElementById('calc-display');
+                let equation = '';
+
+                function appendToDisplay(value) {
+                    equation += value;
+                    display.value = equation;
+                }
+
+                function clearDisplay() {
+                    equation = '';
+                    display.value = equation;
+                }
+
+                function calculate() {
+                    try {
+                        display.value = eval(equation);
+                        equation = display.value;
+                    } catch {
+                        display.value = 'Error';
+                    }
+                }
+
+                function convertCurrency() {
+                    const conversionRate = 1.1; // Example rate: 1 USD = 1.1 EUR
+                    const currentValue = parseFloat(display.value);
+                    if (!isNaN(currentValue)) {
+                        display.value = (currentValue * conversionRate).toFixed(2);
+                    }
+                }
+            </script>
         </div>
     </div>
-    <!-- コントロールパネル -->
-    <div id="control-panel" class="window">
-        <div class="window-header">
-            <span>コントロールパネル</span>
-            <div>
-                <button onclick="minimizeWindow('control-panel')">_</button>
-                <button onclick="maximizeWindow('control-panel')">[ ]</button>
-                <button onclick="closeWindow('control-panel')">X</button>
-            </div>
-        </div>
-        <div class="window-content">
-            <h3>パスワード変更</h3>
-            <label for="old-password">現在のパスワード:</label>
-            <input type="password" id="old-password">
-            <br>
-            <label for="new-password">新しいパスワード:</label>
-            <input type="password" id="new-password">
-            <br>
-            <button onclick="changePassword()">変更</button>
-            <p id="password-change-message"></p>
-        </div>
-    </div>
+
     <script>
-        function openWindow(app) {
-            document.getElementById(app).style.display = 'block';
-            closeStartMenu();
+        function openWindow(id) {
+            document.querySelectorAll('.window').forEach(win => win.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
         }
 
-        function closeWindow(app) {
-            document.getElementById(app).style.display = 'none';
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
-        function minimizeWindow(app) {
-            const win = document.getElementById(app);
-            win.style.height = '50px';
-            win.style.overflow = 'hidden';
+        function minimizeWindow(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
-        function maximizeWindow(app) {
-            const win = document.getElementById(app);
-            win.style.height = '400px';
-            win.style.overflow = 'auto';
+        function maximizeWindow(id) {
+            const win = document.getElementById(id);
+            win.style.width = '100%';
+            win.style.height = '100%';
+            win.style.top = '0';
+            win.style.left = '0';
+            win.style.transform = 'none';
         }
 
-        function closeStartMenu() {
-            document.getElementById('start-menu').style.display = 'none';
-        }
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+        });
 
-        document.getElementById('start-btn').onclick = function() {
-            const menu = document.getElementById('start-menu');
-            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
-        };
+        // ドラッグ機能
+        document.querySelectorAll('.window').forEach(windowEl => {
+            let offsetX, offsetY, isDragging = false;
 
-        let currentPassword = 'password123';
-        function changePassword() {
-            const oldPassword = document.getElementById('old-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const message = document.getElementById('password-change-message');
-            if (oldPassword === currentPassword && newPassword) {
-                currentPassword = newPassword;
-                message.textContent = 'パスワードが変更されました。';
-            } else {
-                message.textContent = 'パスワード変更に失敗しました。';
+            windowEl.querySelector('.window-header').addEventListener('mousedown', e => {
+                isDragging = true;
+                offsetX = e.clientX - windowEl.getBoundingClientRect().left;
+                offsetY = e.clientY - windowEl.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            function onMouseMove(e) {
+                if (!isDragging) return;
+                windowEl.style.left = `${e.clientX - offsetX}px`;
+                windowEl.style.top = `${e.clientY - offsetY}px`;
             }
-        }
 
-        function appendToDisplay(value) {
-            document.getElementById('calculator-display').value += value;
-        }
-
-        function calculate() {
-            try {
-                document.getElementById('calculator-display').value = eval(document.getElementById('calculator-display').value);
-            } catch {
-                document.getElementById('calculator-display').value = 'エラー';
+            function onMouseUp() {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
             }
-        }
-
-        function convertCurrency() {
-            alert('通貨変換機能は実装されていません。');
-        }
+        });
     </script>
 </body>
 </html>
