@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Unium</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #desktop {
+            position: relative;
+            height: 100vh;
+            background: #1224cc;
+        }
+        #taskbar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+        }
+        #startButton {
+            background: #0078d4;
+            border: none;
+            color: white;
+            height: 100%;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+        #taskbarItems {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        #taskbarItems button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        #clock {
+            color: white;
+            margin-right: 20px;
+        }
+        .window {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 400px;
+            height: 300px;
+            background: white;
+            border: 1px solid #ccc;
+            display: none;
+        }
+        .window-header {
+            background: #0078d4;
+            color: white;
+            padding: 5px;
+            cursor: move;
+        }
+        .window-body {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop">
+        <div id="taskbar">
+            <button id="startButton">スタート</button>
+            <div id="taskbarItems">
+                <span id="clock"></span>
+                <button id="browserButton">ブラウザ</button>
+                <button id="cameraButton">カメラ</button>
+                <button id="mediaPlayerButton">メディアプレイヤー</button>
+                <button id="aiButton">AI</button>
+            </div>
+        </div>
+        <div id="startMenu" class="window">
+            <div class="window-header">スタートメニュー</div>
+            <div class="window-body">
+                <button onclick="openApp('browserWindow')">ブラウザ</button>
+                <button onclick="openApp('cameraWindow')">カメラ</button>
+                <button onclick="openApp('mediaPlayerWindow')">メディアプレイヤー</button>
+                <button onclick="openApp('aiWindow')">AI</button>
+            </div>
+        </div>
+        <div id="browserWindow" class="window">
+            <div class="window-header">ブラウザ</div>
+            <div class="window-body">
+                <iframe src="https://www.bing.com" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+        <div id="cameraWindow" class="window">
+            <div class="window-header">カメラ</div>
+            <div class="window-body">
+                <video id="camera" width="100%" height="100%" autoplay></video>
+            </div>
+        </div>
+        <div id="mediaPlayerWindow" class="window">
+            <div class="window-header">メディアプレイヤー</div>
+            <div class="window-body">
+                <input type="file" id="mediaInput">
+                <video id="mediaPlayer" width="100%" height="100%" controls></video>
+            </div>
+        </div>
+        <div id="aiWindow" class="window">
+            <div class="window-header">AI</div>
+            <div class="window-body">
+                <p>AIアシスタントです。何かお手伝いできることはありますか？</p>
+                <input type="text" id="aiInput" placeholder="質問を入力">
+                <button onclick="askAI()">送信</button>
+                <div id="aiResponse"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('startButton').addEventListener('click', function() {
+            toggleVisibility('startMenu');
+        });
+        document.getElementById('browserButton').addEventListener('click', function() {
+            openApp('browserWindow');
+        });
+        document.getElementById('cameraButton').addEventListener('click', function() {
+            openApp('cameraWindow');
+        });
+        document.getElementById('mediaPlayerButton').addEventListener('click', function() {
+            openApp('mediaPlayerWindow');
+        });
+        document.getElementById('aiButton').addEventListener('click', function() {
+            openApp('aiWindow');
+        });
+        function toggleVisibility(id) {
+            var element = document.getElementById(id);
+            element.style.display = (element.style.display === 'block') ? 'none' : 'block';
+        }
+        function openApp(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            document.getElementById('clock').textContent = hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function askAI() {
+            var question = document.getElementById('aiInput').value;
+            var response = "質問に答えるために、さらに開発が必要です。";
+            document.getElementById('aiResponse').textContent = response;
+        }
+        
+        // カメラアクセス
+        function startCamera() {
+            var video = document.getElementById('camera');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                });
+            }
+        }
+        startCamera();
+
+        // メディアプレイヤー
+        document.getElementById('mediaInput').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var url = URL.createObjectURL(file);
+            var video = document.getElementById('mediaPlayer');
+            video.src = url;
+        });
+    </script>
+</body>
+</html>
