@@ -87,14 +87,15 @@
             height: calc(100% - 30px);
             overflow: auto;
         }
-        #paint, #camera, #voice-recognition, #text-extract, #browser, #font-upload {
-            display: none;
-        }
         #paint canvas {
             border: 1px solid #ccc;
             width: 100%;
             height: 100%;
             cursor: crosshair;
+        }
+        #text-extract img {
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
@@ -112,6 +113,7 @@
             <li onclick="openWindow('font-upload')">フォントアップロード</li>
         </ul>
     </div>
+    <!-- ペイント -->
     <div id="paint" class="window">
         <div class="window-header">
             <span>ペイント</span>
@@ -123,9 +125,10 @@
         </div>
         <div class="window-content">
             <canvas id="paint-canvas"></canvas>
-            <!-- ペイント機能のUIを追加 -->
+            <button onclick="translateText('paint')">翻訳</button>
         </div>
     </div>
+    <!-- カメラ -->
     <div id="camera" class="window">
         <div class="window-header">
             <span>カメラ</span>
@@ -136,9 +139,11 @@
             </div>
         </div>
         <div class="window-content">
-            <!-- カメラ機能のUIを追加 -->
+            <video id="camera-feed" autoplay></video>
+            <button onclick="translateText('camera')">翻訳</button>
         </div>
     </div>
+    <!-- 音声認識 -->
     <div id="voice-recognition" class="window">
         <div class="window-header">
             <span>音声認識</span>
@@ -149,9 +154,12 @@
             </div>
         </div>
         <div class="window-content">
-            <!-- 音声認識機能のUIを追加 -->
+            <button id="start-recognition">音声認識開始</button>
+            <p id="recognition-result"></p>
+            <button onclick="translateText('voice-recognition')">翻訳</button>
         </div>
     </div>
+    <!-- テキスト抽出 -->
     <div id="text-extract" class="window">
         <div class="window-header">
             <span>テキスト抽出</span>
@@ -162,9 +170,12 @@
             </div>
         </div>
         <div class="window-content">
-            <!-- テキスト抽出機能のUIを追加 -->
+            <input type="file" id="upload-image" accept="image/*" onchange="extractTextFromImage()" />
+            <p id="extracted-text"></p>
+            <button onclick="translateText('text-extract')">翻訳</button>
         </div>
     </div>
+    <!-- ブラウザ -->
     <div id="browser" class="window">
         <div class="window-header">
             <span>ブラウザ</span>
@@ -178,6 +189,7 @@
             <iframe id="browser-iframe" src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
+    <!-- フォントアップロード -->
     <div id="font-upload" class="window">
         <div class="window-header">
             <span>フォントアップロード</span>
@@ -225,7 +237,7 @@
             win.style.left = '0';
         }
 
-        // ペイント機能の簡単な例
+        // ペイント機能の修正
         var canvas = document.getElementById('paint-canvas');
         var ctx = canvas.getContext('2d');
         canvas.width = canvas.clientWidth;
@@ -275,18 +287,60 @@
             }
         }
 
-        // ローカルストレージでの保存例
-        window.addEventListener('beforeunload', function() {
-            var content = document.getElementById('sample-text').value;
-            localStorage.setItem('fontSampleText', content);
+        // 音声認識機能
+        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ja-JP';
+
+        document.getElementById('start-recognition').addEventListener('click', function() {
+            recognition.start();
         });
 
-        window.addEventListener('load', function() {
-            var savedText = localStorage.getItem('fontSampleText');
-            if (savedText) {
-                document.getElementById('sample-text').value = savedText;
+        recognition.onresult = function(event) {
+            document.getElementById('recognition-result').textContent = event.results[0][0].transcript;
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error', event);
+        };
+
+        // テキスト抽出機能
+        function extractTextFromImage() {
+            var file = document.getElementById('upload-image').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        // OCR処理の例として、ここで画像からテキストを抽出します
+                        document.getElementById('extracted-text').textContent = '画像から抽出されたテキストがここに表示されます';
+                    };
+                };
+                reader.readAsDataURL(file);
             }
-        });
+        }
+
+        // 翻訳機能（ダミーの翻訳例）
+        function translateText(appId) {
+            var textContent = '';
+            switch (appId) {
+                case 'paint':
+                    textContent = 'ペイントアプリの内容';
+                    break;
+                case 'camera':
+                    textContent = 'カメラアプリの内容';
+                    break;
+                case 'voice-recognition':
+                    textContent = document.getElementById('recognition-result').textContent;
+                    break;
+                case 'text-extract':
+                    textContent = document.getElementById('extracted-text').textContent;
+                    break;
+                default:
+                    return;
+            }
+            alert('翻訳機能は現在サポートされていません。翻訳対象: ' + textContent);
+        }
     </script>
 </body>
 </html>
