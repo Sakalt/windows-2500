@@ -9,3 +9,5 @@
 (https://sakalt.github.io/windows-2500/11-15/11.html)
 
 (https://sakalt.github.io/windows-2500/Sunset.html)
+
+(https://sakalt.github.io/windows-2500/nexa.html)
