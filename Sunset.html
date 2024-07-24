@@ -7,8 +7,8 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: url('sunset.png') no-repeat center center fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('sunset-background.png') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
         }
@@ -17,32 +17,30 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 50px;
+            height: 60px;
             background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
             display: flex;
-            justify-content: center;
             align-items: center;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-            border-top: 1px solid #333;
+            padding: 0 10px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
         }
         #start-btn {
-            cursor: pointer;
-            background: url('sunset-logo.png') no-repeat center center;
+            background: url('sunset.png') no-repeat center center;
             width: 40px;
             height: 40px;
             background-size: contain;
+            cursor: pointer;
         }
         #start-menu {
             position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 250px;
-            background-color: rgba(0, 0, 0, 0.9);
-            border: 1px solid #555;
+            bottom: 70px;
+            left: 10px;
+            width: 300px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid #444;
             display: none;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         #start-menu ul {
             list-style: none;
@@ -50,10 +48,10 @@
             margin: 0;
         }
         #start-menu ul li {
-            padding: 10px;
-            border-bottom: 1px solid #666;
+            padding: 15px;
+            border-bottom: 1px solid #555;
             cursor: pointer;
-            text-align: center;
+            color: #fff;
         }
         #start-menu ul li:hover {
             background-color: #333;
@@ -61,50 +59,186 @@
         .window {
             position: absolute;
             border: 1px solid #333;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             color: #000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.5);
             display: none;
-            width: 300px;
+            width: 320px;
             height: 400px;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 8px;
         }
         .window-header {
-            background: #444;
+            background: #ff5722;
             color: #fff;
-            padding: 5px;
+            padding: 10px;
             cursor: move;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
         .window-header button {
-            background: #666;
+            background: #e64a19;
             color: white;
             border: none;
-            padding: 5px;
+            padding: 5px 10px;
             cursor: pointer;
+            border-radius: 4px;
         }
         .window-header button:hover {
-            background: #777;
+            background: #d32f2f;
         }
         .window-content {
             padding: 10px;
-            height: calc(100% - 30px);
+            height: calc(100% - 40px);
             overflow: auto;
+        }
+        textarea {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #calculator-buttons button {
+            background: #ff5722;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        #calculator-buttons button:hover {
+            background: #e64a19;
+        }
+        #weather p, #file-explorer p {
+            font-size: 16px;
+        }
+        #control-panel input {
+            width: calc(100% - 22px);
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #control-panel button {
+            background: #ff5722;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #control-panel button:hover {
+            background: #e64a19;
+        }
+        #control-panel p {
+            color: #ff5722;
+        }
+        #paint canvas {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
     <div id="taskbar">
         <div id="start-btn"></div>
+        <div id="taskbar-icons">
+            <span>アプリ</span>
+        </div>
     </div>
     <div id="start-menu">
         <ul>
+            <li onclick="openWindow('notepad')">メモ帳</li>
+            <li onclick="openWindow('weather')">天気アプリ</li>
+            <li onclick="openWindow('file-explorer')">ファイルエクスプローラー</li>
             <li onclick="openWindow('paint')">ペイント</li>
             <li onclick="openWindow('browser')">ブラウザ</li>
             <li onclick="openWindow('camera')">カメラ</li>
             <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+            <li onclick="openWindow('control-panel')">コントロールパネル</li>
         </ul>
     </div>
+
+    <!-- メモ帳 -->
+    <div id="notepad" class="window">
+        <div class="window-header">
+            <span>メモ帳</span>
+            <div>
+                <button onclick="minimizeWindow('notepad')">_</button>
+                <button onclick="maximizeWindow('notepad')">[ ]</button>
+                <button onclick="closeWindow('notepad')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea></textarea>
+        </div>
+    </div>
+
+    <!-- 天気アプリ -->
+    <div id="weather" class="window">
+        <div class="window-header">
+            <span>天気アプリ</span>
+            <div>
+                <button onclick="minimizeWindow('weather')">_</button>
+                <button onclick="maximizeWindow('weather')">[ ]</button>
+                <button onclick="closeWindow('weather')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>天気情報を表示するセクション</p>
+        </div>
+    </div>
+
+    <!-- ファイルエクスプローラー -->
+    <div id="file-explorer" class="window">
+        <div class="window-header">
+            <span>ファイルエクスプローラー</span>
+            <div>
+                <button onclick="minimizeWindow('file-explorer')">_</button>
+                <button onclick="maximizeWindow('file-explorer')">[ ]</button>
+                <button onclick="closeWindow('file-explorer')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>ファイルを表示するセクション</p>
+        </div>
+    </div>
+
+    <!-- コントロールパネル -->
+    <div id="control-panel" class="window">
+        <div class="window-header">
+            <span>コントロールパネル</span>
+            <div>
+                <button onclick="minimizeWindow('control-panel')">_</button>
+                <button onclick="maximizeWindow('control-panel')">[ ]</button>
+                <button onclick="closeWindow('control-panel')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <h3>パスワード変更</h3>
+            <label for="old-password">現在のパスワード:</label>
+            <input type="password" id="old-password">
+            <br>
+            <label for="new-password">新しいパスワード:</label>
+            <input type="password" id="new-password">
+            <br>
+            <button onclick="changePassword()">変更</button>
+            <p id="password-change-message"></p>
+        </div>
+    </div>
+
     <!-- ペイント -->
     <div id="paint" class="window">
         <div class="window-header">
@@ -116,9 +250,41 @@
             </div>
         </div>
         <div class="window-content">
-            <!-- ペイント内容 -->
+            <canvas id="paint-canvas"></canvas>
+            <script>
+                const canvas = document.getElementById('paint-canvas');
+                const ctx = canvas.getContext('2d');
+                let painting = false;
+
+                canvas.width = 300;
+                canvas.height = 300;
+
+                function startPosition(e) {
+                    painting = true;
+                    draw(e);
+                }
+                function endPosition() {
+                    painting = false;
+                    ctx.beginPath();
+                }
+                function draw(e) {
+                    if (!painting) return;
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#ff5722';
+
+                    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                }
+                canvas.addEventListener('mousedown', startPosition);
+                canvas.addEventListener('mouseup', endPosition);
+                canvas.addEventListener('mousemove', draw);
+            </script>
         </div>
     </div>
+
     <!-- ブラウザ -->
     <div id="browser" class="window">
         <div class="window-header">
@@ -133,6 +299,7 @@
             <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
+
     <!-- カメラ -->
     <div id="camera" class="window">
         <div class="window-header">
@@ -144,9 +311,10 @@
             </div>
         </div>
         <div class="window-content">
-            <video autoplay style="width: 100%; height: 100%;"></video>
+            <p>カメラ機能を表示するセクション</p>
         </div>
     </div>
+
     <!-- 音声認識 -->
     <div id="voice-recognition" class="window">
         <div class="window-header">
@@ -158,40 +326,127 @@
             </div>
         </div>
         <div class="window-content">
-            <button>音声認識開始</button>
-            <p>音声認識結果</p>
+            <p>音声認識機能を表示するセクション</p>
         </div>
     </div>
+
+    <!-- テキスト抽出 -->
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>画像からテキストを抽出する機能を表示するセクション</p>
+        </div>
+    </div>
+
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="calculator-display" readonly>
+            <div id="calculator-buttons">
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button onclick="appendToDisplay('/')">/</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="appendToDisplay('*')">*</button>
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="appendToDisplay('-')">-</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="appendToDisplay('.')">.</button>
+                <button onclick="calculateResult()">=</button>
+                <button onclick="appendToDisplay('+')">+</button>
+                <button onclick="clearDisplay()">C</button>
+            </div>
+            <script>
+                function appendToDisplay(value) {
+                    document.getElementById('calculator-display').value += value;
+                }
+                function clearDisplay() {
+                    document.getElementById('calculator-display').value = '';
+                }
+                function calculateResult() {
+                    const display = document.getElementById('calculator-display');
+                    try {
+                        display.value = eval(display.value);
+                    } catch {
+                        display.value = 'Error';
+                    }
+                }
+            </script>
+        </div>
+    </div>
+
     <script>
-        function openWindow(app) {
-            document.getElementById(app).style.display = 'block';
-            closeStartMenu();
+        function openWindow(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        function minimizeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        function maximizeWindow(id) {
+            const windowElem = document.getElementById(id);
+            windowElem.style.width = '100%';
+            windowElem.style.height = '100%';
+            windowElem.style.top = '0';
+            windowElem.style.left = '0';
+            windowElem.style.transform = 'none';
         }
 
-        function closeWindow(app) {
-            document.getElementById(app).style.display = 'none';
-        }
+        // ドラッグ機能
+        const windows = document.querySelectorAll('.window');
+        windows.forEach(window => {
+            const header = window.querySelector('.window-header');
+            let isDragging = false;
+            let offsetX, offsetY;
 
-        function minimizeWindow(app) {
-            const win = document.getElementById(app);
-            win.style.height = '50px';
-            win.style.overflow = 'hidden';
-        }
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offsetX = e.clientX - window.getBoundingClientRect().left;
+                offsetY = e.clientY - window.getBoundingClientRect().top;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
 
-        function maximizeWindow(app) {
-            const win = document.getElementById(app);
-            win.style.height = '400px';
-            win.style.overflow = 'auto';
-        }
+            function onMouseMove(e) {
+                if (isDragging) {
+                    window.style.left = `${e.clientX - offsetX}px`;
+                    window.style.top = `${e.clientY - offsetY}px`;
+                }
+            }
 
-        function closeStartMenu() {
-            document.getElementById('start-menu').style.display = 'none';
-        }
+            function onMouseUp() {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+        });
 
-        document.getElementById('start-btn').onclick = function() {
-            const menu = document.getElementById('start-menu');
-            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
-        };
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+        });
     </script>
 </body>
 </html>
