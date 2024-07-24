@@ -11,6 +11,11 @@
             background: url('11-15/windows11-background.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #dcdcdc;
         }
         #taskbar {
             position: fixed;
@@ -69,7 +74,15 @@
             left: 50%;
             transform: translateX(-50%);
             border-radius: 8px;
-            cursor: move; /* ドラッグを可能にするためのカーソル */
+            cursor: move;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+        .window.transparent {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .window.dark-mode {
+            background: rgba(30, 30, 30, 0.9);
+            color: #dcdcdc;
         }
         .window-header {
             background: #0078d4;
@@ -129,7 +142,6 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
-        /* サイドバー */
         #sidebar {
             position: fixed;
             top: 0;
@@ -140,20 +152,32 @@
             color: #fff;
             padding: 20px;
             box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
+            display: none;
+        }
+        #sidebar.show {
+            display: block;
         }
         #sidebar iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
+        #font-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+        #font-preview textarea {
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 <body>
     <!-- タスクバー -->
     <div id="taskbar">
-        <div id="start-btn"></div>
+        <div id="start-btn" onclick="toggleStartMenu()"></div>
     </div>
 
     <!-- スタートメニュー -->
@@ -165,12 +189,14 @@
             <li onclick="openWindow('voice-recognition')">音声認識</li>
             <li onclick="openWindow('text-extract')">テキスト抽出</li>
             <li onclick="openWindow('calculator')">電卓</li>
-            <!-- 追加のアプリケーションがあればここにリストを追加 -->
+            <li onclick="openWindow('font-preview')">フォント試し書き</li>
+            <li onclick="openWindow('file-explorer')">ファイルエクスプローラー</li>
+            <li onclick="toggleDarkMode()">ダークモード</li>
         </ul>
     </div>
 
     <!-- サイドバー（Bing Copilot） -->
-    <div id="sidebar">
+    <div id="sidebar" class="show">
         <iframe src="https://www.bing.com/copilot" title="Bing Copilot"></iframe>
     </div>
 
@@ -232,7 +258,7 @@
             </div>
         </div>
         <div class="window-content">
-            <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+            <iframe src="https://www.bing.com" style="width: 100%; height: 100%;"></iframe>
         </div>
     </div>
 
@@ -247,7 +273,13 @@
             </div>
         </div>
         <div class="window-content">
-            <p>カメラ機能を表示するセクション</p>
+            <video id="video" width="100%" height="100%" autoplay></video>
+            <script>
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        document.getElementById('video').srcObject = stream;
+                    });
+            </script>
         </div>
     </div>
 
@@ -262,7 +294,7 @@
             </div>
         </div>
         <div class="window-content">
-            <p>音声認識機能を表示するセクション</p>
+            <p>音声認識機能は未実装です。</p>
         </div>
     </div>
 
@@ -277,7 +309,7 @@
             </div>
         </div>
         <div class="window-content">
-            <p>テキスト抽出機能を表示するセクション</p>
+            <p>テキスト抽出機能は未実装です。</p>
         </div>
     </div>
 
@@ -297,71 +329,94 @@
                 <button onclick="appendToDisplay('1')">1</button>
                 <button onclick="appendToDisplay('2')">2</button>
                 <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="appendToDisplay('+')">+</button>
                 <button onclick="appendToDisplay('4')">4</button>
                 <button onclick="appendToDisplay('5')">5</button>
                 <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="appendToDisplay('-')">-</button>
                 <button onclick="appendToDisplay('7')">7</button>
                 <button onclick="appendToDisplay('8')">8</button>
                 <button onclick="appendToDisplay('9')">9</button>
-                <button onclick="appendToDisplay('0')">0</button>
-                <button onclick="appendToDisplay('+')">+</button>
-                <button onclick="appendToDisplay('-')">-</button>
                 <button onclick="appendToDisplay('*')">*</button>
-                <button onclick="appendToDisplay('/')">/</button>
+                <button onclick="appendToDisplay('0')">0</button>
                 <button onclick="calculate()">=</button>
+                <button onclick="appendToDisplay('.')">.</button>
+                <button onclick="appendToDisplay('/')">/</button>
                 <button onclick="clearDisplay()">C</button>
-                <button onclick="convertCurrency()">$ / €</button>
             </div>
             <script>
-                const display = document.getElementById('calc-display');
-                let equation = '';
-
                 function appendToDisplay(value) {
-                    equation += value;
-                    display.value = equation;
+                    document.getElementById('calc-display').value += value;
                 }
-
-                function clearDisplay() {
-                    equation = '';
-                    display.value = equation;
-                }
-
                 function calculate() {
                     try {
-                        display.value = eval(equation);
-                        equation = display.value;
+                        document.getElementById('calc-display').value = eval(document.getElementById('calc-display').value);
                     } catch {
-                        display.value = 'Error';
+                        document.getElementById('calc-display').value = 'エラー';
                     }
                 }
-
-                function convertCurrency() {
-                    const conversionRate = 1.1; // Example rate: 1 USD = 1.1 EUR
-                    const currentValue = parseFloat(display.value);
-                    if (!isNaN(currentValue)) {
-                        display.value = (currentValue * conversionRate).toFixed(2);
-                    }
+                function clearDisplay() {
+                    document.getElementById('calc-display').value = '';
                 }
             </script>
         </div>
     </div>
 
+    <!-- フォント試し書き -->
+    <div id="font-preview" class="window">
+        <div class="window-header">
+            <span>フォント試し書き</span>
+            <div>
+                <button onclick="minimizeWindow('font-preview')">_</button>
+                <button onclick="maximizeWindow('font-preview')">[ ]</button>
+                <button onclick="closeWindow('font-preview')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea placeholder="ここにフォントを試し書きしてください..."></textarea>
+        </div>
+    </div>
+
+    <!-- ファイルエクスプローラー -->
+    <div id="file-explorer" class="window">
+        <div class="window-header">
+            <span>ファイルエクスプローラー</span>
+            <div>
+                <button onclick="minimizeWindow('file-explorer')">_</button>
+                <button onclick="maximizeWindow('file-explorer')">[ ]</button>
+                <button onclick="closeWindow('file-explorer')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <p>ファイルエクスプローラー機能は未実装です。</p>
+        </div>
+    </div>
+
     <script>
-        function openWindow(id) {
+        let darkMode = false;
+
+        function toggleStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function openWindow(windowId) {
             document.querySelectorAll('.window').forEach(win => win.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
+            document.getElementById(windowId).style.display = 'block';
+            document.getElementById(windowId).style.zIndex = '1000';
         }
 
-        function closeWindow(id) {
-            document.getElementById(id).style.display = 'none';
+        function closeWindow(windowId) {
+            document.getElementById(windowId).style.display = 'none';
         }
 
-        function minimizeWindow(id) {
-            document.getElementById(id).style.display = 'none';
+        function minimizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.style.display = 'none';
         }
 
-        function maximizeWindow(id) {
-            const win = document.getElementById(id);
+        function maximizeWindow(windowId) {
+            const win = document.getElementById(windowId);
             win.style.width = '100%';
             win.style.height = '100%';
             win.style.top = '0';
@@ -369,35 +424,13 @@
             win.style.transform = 'none';
         }
 
-        document.getElementById('start-btn').addEventListener('click', () => {
-            const startMenu = document.getElementById('start-menu');
-            startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // ドラッグ機能
-        document.querySelectorAll('.window').forEach(windowEl => {
-            let offsetX, offsetY, isDragging = false;
-
-            windowEl.querySelector('.window-header').addEventListener('mousedown', e => {
-                isDragging = true;
-                offsetX = e.clientX - windowEl.getBoundingClientRect().left;
-                offsetY = e.clientY - windowEl.getBoundingClientRect().top;
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode', darkMode);
+            document.querySelectorAll('.window').forEach(win => {
+                win.classList.toggle('dark-mode', darkMode);
             });
-
-            function onMouseMove(e) {
-                if (!isDragging) return;
-                windowEl.style.left = `${e.clientX - offsetX}px`;
-                windowEl.style.top = `${e.clientY - offsetY}px`;
-            }
-
-            function onMouseUp() {
-                isDragging = false;
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-            }
-        });
+        }
     </script>
 </body>
 </html>
