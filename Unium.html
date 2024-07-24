@@ -255,14 +255,7 @@
             fetch('aidata.json')
                 .then(response => response.json())
                 .then(data => {
-                    var response;
-                    if (question.includes('こんにちは')) {
-                        response = data.greeting;
-                    } else if (question.includes('さようなら')) {
-                        response = data.farewell;
-                    } else {
-                        response = data.default;
-                    }
+                    var response = data[question] || data.default;
                     document.getElementById('aiResponse').textContent = response;
                 });
         }
