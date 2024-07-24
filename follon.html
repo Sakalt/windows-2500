@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Follon</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('quadlen.png') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('follon.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 200px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        #start-menu ul li:last-child {
+            border-bottom: none;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #000;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            width: 300px;
+            height: 200px;
+        }
+        .window-header {
+            background: #333;
+            color: white;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+        }
+        .window-header button {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .window-header button:hover {
+            background: #666;
+        }
+        .window-content {
+            padding: 10px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+        #paint, #camera, #voice-recognition, #text-extract, #browser, #font-upload {
+            display: none;
+        }
+        #paint canvas {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('font-upload')">フォントアップロード</li>
+        </ul>
+    </div>
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <canvas id="paint-canvas"></canvas>
+            <!-- ペイント機能のUIを追加 -->
+        </div>
+    </div>
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- カメラ機能のUIを追加 -->
+        </div>
+    </div>
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- 音声認識機能のUIを追加 -->
+        </div>
+    </div>
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- テキスト抽出機能のUIを追加 -->
+        </div>
+    </div>
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe id="browser-iframe" src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    <div id="font-upload" class="window">
+        <div class="window-header">
+            <span>フォントアップロード</span>
+            <div>
+                <button onclick="minimizeWindow('font-upload')">_</button>
+                <button onclick="maximizeWindow('font-upload')">[ ]</button>
+                <button onclick="closeWindow('font-upload')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="font-file" accept=".ttf, .otf" onchange="uploadFont()" />
+            <textarea id="sample-text" placeholder="ここにテキストを入力してフォントを試してください" style="width: 100%; height: 100px;"></textarea>
+        </div>
+    </div>
+    <script>
+        // スタートメニューの表示/非表示切替
+        document.getElementById('start-btn').addEventListener('click', function() {
+            var menu = document.getElementById('start-menu');
+            menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
+        });
+
+        // ウィンドウの操作
+        function openWindow(id) {
+            var windows = document.querySelectorAll('.window');
+            windows.forEach(function(win) {
+                win.style.display = 'none';
+            });
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function minimizeWindow(id) {
+            var win = document.getElementById(id);
+            win.style.display = 'none';
+        }
+
+        function maximizeWindow(id) {
+            var win = document.getElementById(id);
+            win.style.width = '100%';
+            win.style.height = '100%';
+            win.style.top = '0';
+            win.style.left = '0';
+        }
+
+        // ペイント機能の簡単な例
+        var canvas = document.getElementById('paint-canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        var painting = false;
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!painting) return;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+
+            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+
+        // フォントアップロード
+        function uploadFont() {
+            var file = document.getElementById('font-file').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var font = new FontFace('CustomFont', event.target.result);
+                    font.load().then(function(loadedFont) {
+                        document.fonts.add(loadedFont);
+                        document.getElementById('sample-text').style.fontFamily = 'CustomFont';
+                    });
+                }
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // ローカルストレージでの保存例
+        window.addEventListener('beforeunload', function() {
+            var content = document.getElementById('sample-text').value;
+            localStorage.setItem('fontSampleText', content);
+        });
+
+        window.addEventListener('load', function() {
+            var savedText = localStorage.getItem('fontSampleText');
+            if (savedText) {
+                document.getElementById('sample-text').value = savedText;
+            }
+        });
+    </script>
+</body>
+</html>
