@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Unium</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #1224cc;
+        }
+        #desktop {
+            position: relative;
+            height: 100vh;
+        }
+        #taskbar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+        }
+        #startButton {
+            background: #0078d4;
+            border: none;
+            color: white;
+            height: 100%;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+        #taskbarItems {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        #taskbarItems button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        #clock {
+            color: white;
+            margin-right: 20px;
+        }
+        .window {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 400px;
+            height: 300px;
+            background: white;
+            border: 1px solid #ccc;
+            display: none;
+            resize: both;
+            overflow: hidden;
+        }
+        .window-header {
+            background: #0078d4;
+            color: white;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .window-header button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .window-body {
+            padding: 10px;
+            height: calc(100% - 30px);
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop">
+        <div id="taskbar">
+            <button id="startButton">スタート</button>
+            <div id="taskbarItems">
+                <span id="clock"></span>
+                <button id="browserButton">ブラウザ</button>
+                <button id="cameraButton">カメラ</button>
+                <button id="mediaPlayerButton">メディアプレイヤー</button>
+                <button id="aiButton">AI</button>
+                <button id="voiceButton">音声認識</button>
+                <button id="ocrButton">テキスト抽出</button>
+            </div>
+        </div>
+        <div id="startMenu" class="window">
+            <div class="window-header">
+                スタートメニュー
+                <button onclick="closeApp('startMenu')">×</button>
+            </div>
+            <div class="window-body">
+                <button onclick="openApp('browserWindow')">ブラウザ</button>
+                <button onclick="openApp('cameraWindow')">カメラ</button>
+                <button onclick="openApp('mediaPlayerWindow')">メディアプレイヤー</button>
+                <button onclick="openApp('aiWindow')">AI</button>
+                <button onclick="openApp('voiceWindow')">音声認識</button>
+                <button onclick="openApp('ocrWindow')">テキスト抽出</button>
+            </div>
+        </div>
+        <div id="browserWindow" class="window">
+            <div class="window-header">
+                ブラウザ
+                <button onclick="minimizeApp('browserWindow')">_</button>
+                <button onclick="maximizeApp('browserWindow')">□</button>
+                <button onclick="closeApp('browserWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <iframe src="https://www.bing.com" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+        <div id="cameraWindow" class="window">
+            <div class="window-header">
+                カメラ
+                <button onclick="minimizeApp('cameraWindow')">_</button>
+                <button onclick="maximizeApp('cameraWindow')">□</button>
+                <button onclick="closeApp('cameraWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <video id="camera" width="100%" height="100%" autoplay></video>
+            </div>
+        </div>
+        <div id="mediaPlayerWindow" class="window">
+            <div class="window-header">
+                メディアプレイヤー
+                <button onclick="minimizeApp('mediaPlayerWindow')">_</button>
+                <button onclick="maximizeApp('mediaPlayerWindow')">□</button>
+                <button onclick="closeApp('mediaPlayerWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <input type="file" id="mediaInput">
+                <video id="mediaPlayer" width="100%" height="100%" controls></video>
+            </div>
+        </div>
+        <div id="aiWindow" class="window">
+            <div class="window-header">
+                AI
+                <button onclick="minimizeApp('aiWindow')">_</button>
+                <button onclick="maximizeApp('aiWindow')">□</button>
+                <button onclick="closeApp('aiWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <p>AIアシスタントです。何かお手伝いできることはありますか？</p>
+                <input type="text" id="aiInput" placeholder="質問を入力">
+                <button onclick="askAI()">送信</button>
+                <div id="aiResponse"></div>
+            </div>
+        </div>
+        <div id="voiceWindow" class="window">
+            <div class="window-header">
+                音声認識
+                <button onclick="minimizeApp('voiceWindow')">_</button>
+                <button onclick="maximizeApp('voiceWindow')">□</button>
+                <button onclick="closeApp('voiceWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <p id="voiceOutput">音声を聞き取っています...</p>
+                <button onclick="startVoiceRecognition()">音声認識開始</button>
+            </div>
+        </div>
+        <div id="ocrWindow" class="window">
+            <div class="window-header">
+                テキスト抽出
+                <button onclick="minimizeApp('ocrWindow')">_</button>
+                <button onclick="maximizeApp('ocrWindow')">□</button>
+                <button onclick="closeApp('ocrWindow')">×</button>
+            </div>
+            <div class="window-body">
+                <input type="file" id="ocrInput">
+                <button onclick="performOCR()">テキスト抽出</button>
+                <p id="ocrOutput">ここに抽出されたテキストが表示されます</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('startButton').addEventListener('click', function() {
+            toggleVisibility('startMenu');
+        });
+        document.getElementById('browserButton').addEventListener('click', function() {
+            openApp('browserWindow');
+        });
+        document.getElementById('cameraButton').addEventListener('click', function() {
+            openApp('cameraWindow');
+        });
+        document.getElementById('mediaPlayerButton').addEventListener('click', function() {
+            openApp('mediaPlayerWindow');
+        });
+        document.getElementById('aiButton').addEventListener('click', function() {
+            openApp('aiWindow');
+        });
+        document.getElementById('voiceButton').addEventListener('click', function() {
+            openApp('voiceWindow');
+        });
+        document.getElementById('ocrButton').addEventListener('click', function() {
+            openApp('ocrWindow');
+        });
+
+        function toggleVisibility(id) {
+            var element = document.getElementById(id);
+            element.style.display = (element.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function openApp(id) {
+            var element = document.getElementById(id);
+            element.style.display = 'block';
+            element.style.zIndex = Date.now();  // Bring window to front
+        }
+
+        function closeApp(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function minimizeApp(id) {
+            var element = document.getElementById(id);
+            element.style.display = 'none';
+        }
+
+        function maximizeApp(id) {
+            var element = document.getElementById(id);
+            if (element.style.width === '100%') {
+                element.style.width = '400px';
+                element.style.height = '300px';
+                element.style.top = '50px';
+                element.style.left = '50px';
+            } else {
+                element.style.width = '100%';
+                element.style.height = '100%';
+                element.style.top = '0';
+                element.style.left = '0';
+            }
+        }
+
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            document.getElementById('clock').textContent = hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function askAI() {
+            var question = document.getElementById('aiInput').value;
+            fetch('aidata.json')
+                .then(response => response.json())
+                .then(data => {
+                    var response;
+                    if (question.includes('こんにちは')) {
+                        response = data.greeting;
+                    } else if (question.includes('さようなら')) {
+                        response = data.farewell;
+                    } else {
+                        response = data.default;
+                    }
+                    document.getElementById('aiResponse').textContent = response;
+                });
+        }
+
+        function startVoiceRecognition() {
+            var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ja-JP';
+            recognition.onresult = function(event) {
+                var transcript = event.results[0][0].transcript;
+                document.getElementById('voiceOutput').textContent = '認識結果: ' + transcript;
+            };
+            recognition.start();
+        }
+
+        function performOCR() {
+            var input = document.getElementById('ocrInput');
+            var reader = new FileReader();
+            reader.onload = function() {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    Tesseract.recognize(canvas, 'jpn')
+                        .then(function(result) {
+                            document.getElementById('ocrOutput').textContent = result.data.text;
+                        });
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        // Enable dragging of windows
+        document.querySelectorAll('.window').forEach(function(win) {
+            var header = win.querySelector('.window-header');
+            var isDragging = false;
+            var offsetX, offsetY;
+
+            header.addEventListener('mousedown', function(event) {
+                isDragging = true;
+                offsetX = event.clientX - win.offsetLeft;
+                offsetY = event.clientY - win.offsetTop;
+            });
+
+            document.addEventListener('mousemove', function(event) {
+                if (isDragging) {
+                    win.style.left = (event.clientX - offsetX) + 'px';
+                    win.style.top = (event.clientY - offsetY) + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        });
+
+        // カメラアクセス
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    var video = document.getElementById('camera');
+                    video.srcObject = stream;
+                })
+                .catch(function(error) {
+                    console.error('カメラアクセスエラー:', error);
+                });
+        }
+        startCamera();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.0/dist/tesseract.min.js"></script>
+</body>
+</html>
