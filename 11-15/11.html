@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 13</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('11-15/windows11-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #000;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+        }
+        #start-btn {
+            background: url('start-menu-icon.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+            cursor: pointer;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            width: 250px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 10px;
+            border-bottom: 1px solid #555;
+            cursor: pointer;
+            color: #fff;
+        }
+        #start-menu ul li:hover {
+            background-color: #333;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: none;
+            width: 300px;
+            height: 400px;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .window-header {
+            background: #0078d4;
+            color: #fff;
+            padding: 10px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .window-header button {
+            background: #005a9e;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .window-header button:hover {
+            background: #004a8d;
+        }
+        .window-content {
+            padding: 10px;
+            height: calc(100% - 40px);
+            overflow: auto;
+        }
+        #lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8) url('lock-screen-background.png') no-repeat center center;
+            background-size: cover;
+            display: none;
+            color: #fff;
+            text-align: center;
+            padding-top: 20%;
+        }
+        #lock-screen input {
+            font-size: 18px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+        <div id="taskbar-icons">
+            <span>アプリ</span>
+        </div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+        </ul>
+    </div>
+    <div id="lock-screen">
+        <div>
+            <h2>ロック画面</h2>
+            <input type="password" placeholder="パスワードを入力">
+            <button onclick="unlockScreen()">解除</button>
+        </div>
+    </div>
+    <!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- ペイント内容 -->
+        </div>
+    </div>
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://www.bing.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video autoplay style="width: 100%; height: 100%;"></video>
+        </div>
+    </div>
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button>音声認識開始</button>
+            <p>音声認識結果</p>
+        </div>
+    </div>
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="calc-display" style="width: 100%; height: 50px; font-size: 24px;" disabled>
+            <div id="calculator-buttons">
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="performOperation('+')">+</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="performOperation('-')">-</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button onclick="performOperation('*')">*</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="performOperation('.')">.</button>
+                <button onclick="calculateResult()">=</button>
+                <button onclick="performOperation('/')">/</button>
+                <button onclick="convertCurrency('$')">ドル変換</button>
+                <button onclick="convertCurrency('€')">ユーロ変換</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openWindow(app) {
+            document.getElementById(app).style.display = 'block';
+            closeStartMenu();
+        }
+
+        function closeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+
+        function minimizeWindow(app) {
+            const win = document.getElementById(app);
+            win.style.height = '50px';
+            win.style.overflow = 'hidden';
+        }
+
+        function maximizeWindow(app) {
+            const win = document.getElementById(app);
+            win.style.height = '400px';
+            win.style.overflow = 'auto';
+        }
+
+        function closeStartMenu() {
+            document.getElementById('start-menu').style.display = 'none';
+        }
+
+        document.getElementById('start-btn').onclick = function() {
+            const menu = document.getElementById('start-menu');
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+        };
+
+        function unlockScreen() {
+            const password = document.querySelector('#lock-screen input').value;
+            if (password === 'password123') {
+                document.getElementById('lock-screen').style.display = 'none';
+            } else {
+                alert('パスワードが違います');
+            }
+        }
+
+        let currentOperation = '';
+        function appendToDisplay(value) {
+            document.getElementById('calc-display').value += value;
+        }
+
+        function performOperation(op) {
+            currentOperation = op;
+            appendToDisplay(' ' + op + ' ');
+        }
+
+        function calculateResult() {
+            const display = document.getElementById('calc-display');
+            try {
+                display.value = eval(display.value.replace(' ', ''));
+            } catch {
+                display.value = 'エラー';
+            }
+        }
+
+        function convertCurrency(currency) {
+            // 通貨換算のロジック（例: 固定値としての換算）
+            const conversionRates = {
+                '$': 140,  // 1ドル = 140円
+                '€': 150   // 1ユーロ = 150円
+            };
+            const display = document.getElementById('calc-display');
+            const value = parseFloat(display.value);
+            if (!isNaN(value)) {
+                display.value = value * conversionRates[currency] + ' 円';
+            } else {
+                display.value = '入力エラー';
+            }
+        }
+    </script>
+</body>
+</html>
