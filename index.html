@@ -6,29 +6,102 @@
     <title>Windows 2500</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             overflow: hidden;
-            background: #008080; /* Windows 95風の青緑 */
+            font-family: Arial, sans-serif;
         }
+
         #desktop {
             width: 100vw;
             height: 100vh;
+            background-color: #008080; /* Windows 95風の青緑背景 */
+            position: relative;
+        }
+
+        #taskbar {
+            width: 100%;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+        }
+
+        #start-button {
+            cursor: pointer;
+            position: relative;
+            border-radius: 50%;
+            background: blue; /* ボタンの色を青に設定 */
+            color: white;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            font-size: 18px;
+            font-weight: bold;
         }
-        .window {
-            width: 700px;
-            height: 500px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #000;
+
+        #clock {
+            font-family: Arial, sans-serif;
+        }
+
+        #sidebar {
+            width: 60px;
+            height: calc(100% - 40px);
+            background-color: rgba(0, 0, 0, 0.7);
             position: absolute;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-            display: none;
+            top: 0;
+            left: 0;
+            display: flex;
             flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
         }
+
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        #sidebar-vista {
+            width: 200px;
+            height: calc(100% - 40px);
+            background-color: rgba(0, 0, 0, 0.7);
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            color: white;
+        }
+
+        .window {
+            width: 400px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid black;
+            position: absolute;
+            top: 50px;
+            left: 100px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            cursor: move; /* ドラッグ可能にする */
+        }
+
         .window-header {
             width: 100%;
             height: 30px;
@@ -38,258 +111,352 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 10px;
-            cursor: move;
+            position: relative;
             background: linear-gradient(to bottom, #4a90e2 0%, #003d7d 100%);
         }
-        .window-body {
+
+        .window-title {
             flex: 1;
-            padding: 10px;
-            overflow: auto;
+            text-align: center;
+        }
+
+        .window-controls {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            gap: 5px;
         }
-        canvas {
-            border: 1px solid black;
-            margin-top: 10px;
+
+        .window-controls .button {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: #fff;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            text-align: center;
+            width: 25px;
+            height: 25px;
         }
-        .toolbar {
-            margin-bottom: 10px;
+
+        .window-controls .button:hover {
+            background: #e0e0e0;
         }
-        .toolbar button, .toolbar input, .toolbar select {
-            margin-right: 10px;
-        }
-        #file-input {
-            display: none;
-        }
+
         .window-controls .button.close {
             background: linear-gradient(to bottom, #f44336, #c62828);
             color: white;
         }
+
+        #paint-canvas {
+            border: 1px solid black;
+            width: 100%;
+            height: 100%;
+        }
+
+        #browser-frame, #ai-frame, #media-player-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #bsod-window {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: blue;
+            color: white;
+            font-size: 48px;
+            text-align: center;
+            line-height: 100vh;
+            z-index: 100;
+        }
+
+        /* スタートメニュー */
         #start-menu {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 200px;
-            height: 200px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            display: flex;
+            position: absolute;
+            bottom: 50px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            z-index: 20;
-            display: none;
         }
-        #start-menu button {
-            width: 150px;
+
+        #start-menu .menu-item {
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        #start-menu .menu-item img {
+            width: 30px;
+            height: 30px;
             margin: 5px;
+        }
+
+        /* カメラ */
+        #camera-preview {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ボタンのアニメーション */
+        #start-button:hover {
+            background: #005bb5;
+        }
+
+        /* スタートメニュー内のボタンのアニメーション */
+        #start-menu .menu-item:hover {
+            background: #e0e0e0;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div id="desktop">
-        <!-- Paint App -->
-        <div class="window" id="paint-window" style="top: 50px; left: 50px;">
-            <div class="window-header">
-                <span>ペイント</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <div class="toolbar">
-                    <button id="brush-tool">ブラシ</button>
-                    <button id="fill-tool">塗りつぶし</button>
-                    <button id="rect-tool">四角形</button>
-                    <button id="circle-tool">丸</button>
-                    <button id="triangle-tool">三角形</button>
-                    <button id="polygon-tool">ポリゴン</button>
-                    <button id="gear-tool">歯車</button>
-                    <button id="export">エクスポート</button>
-                    <button id="import">インポート</button>
-                    <input type="file" id="file-input">
-                </div>
-                <canvas id="canvas" width="640" height="480"></canvas>
-            </div>
-        </div>
-
-        <!-- Camera App -->
-        <div class="window" id="camera-window" style="top: 100px; left: 100px;">
-            <div class="window-header">
-                <span>カメラ</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <video id="video" width="640" height="480" autoplay></video>
-                <button id="snap">写真を撮る</button>
-                <canvas id="camera-canvas" width="640" height="480" style="display:none;"></canvas>
-            </div>
-        </div>
-
-        <!-- Browser App -->
-        <div class="window" id="browser-window" style="top: 150px; left: 150px;">
-            <div class="window-header">
-                <span>ブラウザ</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <iframe src="https://www.bing.com" width="640" height="480"></iframe>
-            </div>
-        </div>
-
-        <!-- Photo Viewer -->
-        <div class="window" id="photo-viewer-window" style="top: 200px; left: 200px;">
-            <div class="window-header">
-                <span>フォトビューア</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <img id="photo-viewer" src="" width="640" height="480">
-            </div>
-        </div>
-
-        <!-- Media Player -->
-        <div class="window" id="media-player-window" style="top: 250px; left: 250px;">
-            <div class="window-header">
-                <span>メディアプレイヤー</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <video id="media-player" width="640" height="480" controls>
-                    <source src="sample.mp4" type="video/mp4">
-                </video>
-            </div>
-        </div>
-
-        <!-- Font Tester -->
-        <div class="window" id="font-tester-window" style="top: 300px; left: 300px;">
-            <div class="window-header">
-                <span>フォント試し書き</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <select id="font-select">
-                    <option value="Arial">Arial</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                </select>
-                <textarea id="font-tester" rows="10" cols="50" style="font-family: Arial;"></textarea>
-            </div>
-        </div>
-
-        <!-- AI App -->
-        <div class="window" id="ai-window" style="top: 350px; left: 350px;">
-            <div class="window-header">
-                <span>AI アプリ</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <iframe src="ai-app.html" width="640" height="480"></iframe>
-            </div>
-        </div>
-
-        <!-- Minesweeper -->
-        <div class="window" id="minesweeper-window" style="top: 400px; left: 400px;">
-            <div class="window-header">
-                <span>マインスイーパー</span>
-                <div class="window-controls">
-                    <button class="button close">×</button>
-                </div>
-            </div>
-            <div class="window-body">
-                <!-- Minesweeper game will be here -->
-            </div>
-        </div>
-
-        <!-- Start Menu -->
-        <div id="start-menu">
-            <button onclick="openApp('paint-window')">ペイント</button>
-            <button onclick="openApp('camera-window')">カメラ</button>
-            <button onclick="openApp('browser-window')">ブラウザ</button>
-            <button onclick="openApp('photo-viewer-window')">フォトビューア</button>
-            <button onclick="openApp('media-player-window')">メディアプレイヤー</button>
-            <button onclick="openApp('font-tester-window')">フォント試し書き</button>
-            <button onclick="openApp('ai-window')">AI アプリ</button>
-            <button onclick="openApp('minesweeper-window')">マインスイーパー</button>
-        </div>
-
-        <!-- Taskbar -->
         <div id="taskbar">
-            <button onclick="toggleStartMenu()">スタート</button>
+            <div id="start-button">〇</div>
+            <div id="clock"></div>
         </div>
+        <div id="start-menu">
+            <div class="menu-item" id="camera-app">
+                <img src="camera-icon.png" alt="カメラ">
+            </div>
+            <div class="menu-item" id="paint-app">
+                <img src="paint-icon.png" alt="ペイント">
+            </div>
+            <div class="menu-item" id="browser-app">
+                <img src="browser-icon.png" alt="ブラウザ">
+            </div>
+            <div class="menu-item" id="photo-app">
+                <img src="photo-icon.png" alt="フォト">
+            </div>
+            <div class="menu-item" id="media-player-app">
+                <img src="media-player-icon.png" alt="メディアプレイヤー">
+            </div>
+            <div class="menu-item" id="font-app">
+                <img src="font-icon.png" alt="フォント試し書き">
+            </div>
+            <div class="menu-item" id="ai-app">
+                <img src="ai-icon.png" alt="AI">
+            </div>
+            <div class="menu-item" id="minesweeper-app">
+                <img src="minesweeper-icon.png" alt="マインスイーパー">
+            </div>
+            <div class="menu-item" id="extensions-app">
+                <img src="extensions-icon.png" alt="拡張機能">
+            </div>
+        </div>
+        <div id="sidebar">
+            <div class="app-icon" id="camera-app">📷</div>
+            <div class="app-icon" id="paint-app">🎨</div>
+            <div class="app-icon" id="browser-app">🌐</div>
+            <div class="app-icon" id="photo-app">🖼️</div>
+            <div class="app-icon" id="media-player-app">🎵</div>
+            <div class="app-icon" id="font-app">🔠</div>
+            <div class="app-icon" id="ai-app">🤖</div>
+            <div class="app-icon" id="minesweeper-app">💣</div>
+            <div class="app-icon" id="extensions-app">🔌</div>
+        </div>
+        <div id="sidebar-vista">
+            <!-- Vista風のサイドバー内容 -->
+        </div>
+        <div id="windows">
+            <!-- ウィンドウがここに生成される -->
+        </div>
+        <div id="bsod-window">ブルースクリーン発生</div>
     </div>
-
     <script>
-        function openApp(id) {
-            document.querySelectorAll('.window').forEach(win => win.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
-        }
-
-        function toggleStartMenu() {
-            const menu = document.getElementById('start-menu');
-            menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'flex' : 'none';
-        }
-
-        document.querySelectorAll('.window-controls .close').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.target.closest('.window').style.display = 'none';
+        document.addEventListener('DOMContentLoaded', () => {
+            // スタートボタン
+            document.getElementById('start-button').addEventListener('click', () => {
+                const menu = document.getElementById('start-menu');
+                menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
             });
-        });
 
-        // Make the window draggable
-        document.querySelectorAll('.window').forEach(win => {
-            const header = win.querySelector('.window-header');
-            header.addEventListener('mousedown', (e) => {
-                const offsetX = e.clientX - win.getBoundingClientRect().left;
-                const offsetY = e.clientY - win.getBoundingClientRect().top;
-                function onMouseMove(e) {
-                    win.style.left = e.clientX - offsetX + 'px';
-                    win.style.top = e.clientY - offsetY + 'px';
-                }
-                function onMouseUp() {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                }
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+            // アプリのイベントリスナー
+            document.getElementById('camera-app').addEventListener('click', () => {
+                createCameraWindow();
             });
-        });
 
-        // Camera functionality
-        document.getElementById('snap').addEventListener('click', () => {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('camera-canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            document.getElementById('photo-viewer').src = canvas.toDataURL('image/png');
-        });
+            document.getElementById('paint-app').addEventListener('click', () => {
+                createPaintWindow();
+            });
 
-        // Access camera stream
-        async function startCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('video').srcObject = stream;
-            } catch (err) {
-                console.error('Error accessing camera: ', err);
+            document.getElementById('browser-app').addEventListener('click', () => {
+                createBrowserWindow();
+            });
+
+            document.getElementById('photo-app').addEventListener('click', () => {
+                createPhotoWindow();
+            });
+
+            document.getElementById('media-player-app').addEventListener('click', () => {
+                createMediaPlayerWindow();
+            });
+
+            document.getElementById('font-app').addEventListener('click', () => {
+                createFontWindow();
+            });
+
+            document.getElementById('ai-app').addEventListener('click', () => {
+                createAIWindow();
+            });
+
+            document.getElementById('minesweeper-app').addEventListener('click', () => {
+                createMinesweeperWindow();
+            });
+
+            document.getElementById('extensions-app').addEventListener('click', () => {
+                createExtensionsWindow();
+            });
+
+            function createWindow(id, title, content) {
+                const windowElement = document.createElement('div');
+                windowElement.className = 'window';
+                windowElement.id = id;
+                
+                const header = document.createElement('div');
+                header.className = 'window-header';
+                
+                const titleElement = document.createElement('div');
+                titleElement.className = 'window-title';
+                titleElement.innerText = title;
+                
+                const controls = document.createElement('div');
+                controls.className = 'window-controls';
+                
+                const minButton = document.createElement('div');
+                minButton.className = 'button';
+                minButton.innerText = '-';
+                minButton.addEventListener('click', () => {
+                    windowElement.style.display = 'none';
+                });
+                
+                const maxButton = document.createElement('div');
+                maxButton.className = 'button';
+                maxButton.innerText = '+';
+                maxButton.addEventListener('click', () => {
+                    if (windowElement.style.width === '100vw') {
+                        windowElement.style.width = '400px';
+                        windowElement.style.height = '300px';
+                    } else {
+                        windowElement.style.width = '100vw';
+                        windowElement.style.height = '100vh';
+                    }
+                });
+                
+                const closeButton = document.createElement('div');
+                closeButton.className = 'button close';
+                closeButton.innerText = 'X';
+                closeButton.addEventListener('click', () => {
+                    windowElement.remove();
+                });
+                
+                controls.appendChild(minButton);
+                controls.appendChild(maxButton);
+                controls.appendChild(closeButton);
+                
+                header.appendChild(titleElement);
+                header.appendChild(controls);
+                
+                windowElement.appendChild(header);
+                windowElement.appendChild(content);
+                
+                document.getElementById('windows').appendChild(windowElement);
+                
+                makeDraggable(windowElement);
             }
-        }
-        startCamera();
+
+            function makeDraggable(element) {
+                let offsetX, offsetY, isDragging = false;
+                
+                element.querySelector('.window-header').addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    offsetX = e.clientX - element.getBoundingClientRect().left;
+                    offsetY = e.clientY - element.getBoundingClientRect().top;
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        element.style.left = `${e.clientX - offsetX}px`;
+                        element.style.top = `${e.clientY - offsetY}px`;
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            }
+
+            function createCameraWindow() {
+                const content = document.createElement('iframe');
+                content.id = 'camera-preview';
+                content.src = 'camera.html'; // カメラのコンテンツ
+                createWindow('camera-window', 'カメラ', content);
+            }
+
+            function createPaintWindow() {
+                const content = document.createElement('canvas');
+                content.id = 'paint-canvas';
+                createWindow('paint-window', 'ペイント', content);
+            }
+
+            function createBrowserWindow() {
+                const content = document.createElement('iframe');
+                content.id = 'browser-frame';
+                content.src = 'https://www.bing.com'; // Bing検索
+                createWindow('browser-window', 'ブラウザ', content);
+            }
+
+            function createPhotoWindow() {
+                const content = document.createElement('div');
+                content.innerText = 'フォトアプリのコンテンツ';
+                createWindow('photo-window', 'フォト', content);
+            }
+
+            function createMediaPlayerWindow() {
+                const content = document.createElement('div');
+                content.innerText = 'メディアプレイヤーアプリのコンテンツ';
+                createWindow('media-player-window', 'メディアプレイヤー', content);
+            }
+
+            function createFontWindow() {
+                const content = document.createElement('textarea');
+                content.style.width = '100%';
+                content.style.height = '100%';
+                content.style.fontFamily = 'Arial, sans-serif'; // フォントを設定
+                createWindow('font-window', 'フォント試し書き', content);
+            }
+
+            function createAIWindow() {
+                const content = document.createElement('iframe');
+                content.id = 'ai-frame';
+                content.src = 'https://chatgpt.com'; // AIのコンテンツ
+                createWindow('ai-window', 'AI', content);
+            }
+
+            function createMinesweeperWindow() {
+                const content = document.createElement('div');
+                content.innerText = 'マインスイーパーのコンテンツ';
+                createWindow('minesweeper-window', 'マインスイーパー', content);
+            }
+
+            function createExtensionsWindow() {
+                const content = document.createElement('div');
+                content.innerText = '拡張機能のストア';
+                createWindow('extensions-window', '拡張機能', content);
+            }
+
+            function showBSOD() {
+                document.getElementById('bsod-window').style.display = 'flex';
+            }
+        });
     </script>
 </body>
 </html>
