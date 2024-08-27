@@ -11,7 +11,7 @@
 (https://sakalt.github.io/windows-2500/Sunset.html)
 
 (https://sakalt.github.io/windows-2500/nexa.html)
-
+https://chatgpt.com
 # win7fromfuture
 
 (https://sakalt.github.io/windows-2500/10.html)
