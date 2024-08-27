@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11風デスクトップ</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: url('image.png') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+            color: #333;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 48px;
+            background-color: rgba(36, 36, 36, 0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            border-radius: 12px 12px 0 0;
+            backdrop-filter: blur(10px);
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('windows-10-icon-9.jpg') no-repeat center center;
+            z-index: 1000; /* ここで z-index を指定 */
+            width: 32px;
+            height: 32px;
+            margin: 8px;
+            background-size: contain;
+            border-radius: 8px;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            background-color: rgba(241, 241, 241, 0.95);
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 12px;
+            cursor: pointer;
+            background-color: rgba(17, 17, 17, 0.8);
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+        #start-menu ul li:hover {
+            background-color: rgba(238, 238, 238, 0.8);
+            color: #333;
+        }
+        .window {
+            position: absolute;
+            border: 1px solid #cacaca;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: none;
+            width: 300px;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .window-header {
+            background: rgba(170, 170, 170, 0.9);
+            color: white;
+            padding: 8px 12px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+        .window-header button {
+            background: linear-gradient(15deg, #aaaaaa, #bcbcbc);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 4px;
+        }
+        .window-header button:hover {
+            background: linear-gradient(45deg, #a6a6a6, #bcbcbc);
+        }
+        .window-content {
+            padding: 16px;
+            height: calc(100% - 40px);
+            overflow: auto;
+        }
+        button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #005ea6;
+        }
+        #calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        #calculator-buttons button {
+            width: 100%;
+            height: 50px;
+            font-size: 18px;
+            background-color: #f1f1f1;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #calculator-buttons button:hover {
+            background-color: #e1e1e1;
+        }
+        #currency-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        #calc-display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント</li>
+            <li onclick="openWindow('camera')">カメラ</li>
+            <li onclick="openWindow('voice-recognition')">音声認識</li>
+            <li onclick="openWindow('text-extract')">テキスト抽出</li>
+            <li onclick="openWindow('browser')">ブラウザ</li>
+            <li onclick="openWindow('font-upload')">フォントアップロード</li>
+            <li onclick="openWindow('notes')">ノート</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+        </ul>
+    </div>
+<!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <canvas id="paint-canvas" style="width: 100%; height: calc(100% - 50px); border: 1px solid #ccc;"></canvas>
+            <button onclick="translateText('paint')">翻訳</button>
+        </div>
+    </div>
+    <!-- カメラ -->
+    <div id="camera" class="window">
+        <div class="window-header">
+            <span>カメラ</span>
+            <div>
+                <button onclick="minimizeWindow('camera')">_</button>
+                <button onclick="maximizeWindow('camera')">[ ]</button>
+                <button onclick="closeWindow('camera')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video id="camera-feed" autoplay style="width: 100%; height: calc(100% - 50px);"></video>
+            <button onclick="translateText('camera')">翻訳</button>
+        </div>
+    </div>
+    <!-- 音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button id="start-recognition">音声認識開始</button>
+            <p id="recognition-result"></p>
+            <button onclick="translateText('voice-recognition')">翻訳</button>
+        </div>
+    </div>
+    <!-- テキスト抽出 -->
+    <div id="text-extract" class="window">
+        <div class="window-header">
+            <span>テキスト抽出</span>
+            <div>
+                <button onclick="minimizeWindow('text-extract')">_</button>
+                <button onclick="maximizeWindow('text-extract')">[ ]</button>
+                <button onclick="closeWindow('text-extract')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="upload-image" accept="image/*" onchange="extractTextFromImage()" />
+            <p id="extracted-text"></p>
+            <button onclick="translateText('text-extract')">翻訳</button>
+        </div>
+    </div>
+    <!-- ブラウザ -->
+    <div id="browser" class="window">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div>
+                <button onclick="minimizeWindow('browser')">_</button>
+                <button onclick="maximizeWindow('browser')">[ ]</button>
+                <button onclick="closeWindow('browser')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://www.google.com" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+    <!-- フォントアップロード -->
+    <div id="font-upload" class="window">
+        <div class="window-header">
+            <span>フォントアップロード</span>
+            <div>
+                <button onclick="minimizeWindow('font-upload')">_</button>
+                <button onclick="maximizeWindow('font-upload')">[ ]</button>
+                <button onclick="closeWindow('font-upload')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="upload-font" accept=".ttf,.otf" />
+            <button onclick="uploadFont()">フォントアップロード</button>
+        </div>
+    </div>
+    <!-- ノート -->
+    <div id="notes" class="window">
+        <div class="window-header">
+            <span>ノート</span>
+            <div>
+                <button onclick="minimizeWindow('notes')">_</button>
+                <button onclick="maximizeWindow('notes')">[ ]</button>
+                <button onclick="closeWindow('notes')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea id="note-content" style="width: 100%; height: calc(100% - 50px);"></textarea>
+            <button onclick="saveNote()">保存</button>
+        </div>
+    </div>
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input id="calc-display" type="text" readonly />
+            <div id="calculator-buttons">
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button onclick="performOperation('+')">+</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button onclick="performOperation('-')">-</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button onclick="performOperation('*')">*</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="appendToDisplay('.')">.</button>
+                <button onclick="calculateResult()">=</button>
+                <button onclick="performOperation('/')">/</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('start-btn').onclick = function() {
+            const menu = document.getElementById('start-menu');
+            menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+        };
+        function openWindow(app) {
+            document.getElementById(app).style.display = 'block';
+            closeStartMenu();
+        }
+        function closeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+        function minimizeWindow(app) {
+            const windowElement = document.getElementById(app);
+            windowElement.style.height = '40px';
+            windowElement.style.overflow = 'hidden';
+        }
+        function maximizeWindow(app) {
+            const windowElement = document.getElementById(app);
+            windowElement.style.height = '400px';
+            windowElement.style.overflow = 'auto';
+        }
+        function closeStartMenu() {
+            document.getElementById('start-menu').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
