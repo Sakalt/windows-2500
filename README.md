@@ -12,6 +12,6 @@
 
 (https://sakalt.github.io/windows-2500/nexa.html)
 
-#win7fromfuture
+# win7fromfuture
 
-(https://sakalt.github.io/windows-2500/win7fromfuture/10.html)
+(https://sakalt.github.io/windows-2500/10.html)
