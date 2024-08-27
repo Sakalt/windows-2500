@@ -11,3 +11,7 @@
 (https://sakalt.github.io/windows-2500/Sunset.html)
 
 (https://sakalt.github.io/windows-2500/nexa.html)
+
+#win7fromfuture
+
+(https://sakalt.github.io/windows-2500/win7fromfuture/win10.html)
