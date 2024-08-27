@@ -29,7 +29,7 @@
         }
         #start-btn {
             cursor: pointer;
-            background: url('windows-10-icon-9.jpg') no-repeat center center;
+            background: url('win7fromfuture/windows-10-icon-9.jpg') no-repeat center center;
             width: 32px;
             height: 32px;
             margin: 8px;
@@ -56,17 +56,17 @@
         #start-menu ul li {
             padding: 12px;
             cursor: pointer;
-            background-color: #0078D7;
+            background-color: #111111;
             color: white;
             text-align: center;
             border-bottom: 1px solid #ccc;
         }
         #start-menu ul li:hover {
-            background-color: #005ea6;
+            background-color: #eeeeee;
         }
         .window {
             position: absolute;
-            border: 1px solid #0078D7;
+            border: 1px solid #cacaca;
             background: white;
             box-shadow: 0 2px 12px rgba(0,0,0,0.2);
             display: none;
@@ -76,7 +76,7 @@
             overflow: hidden;
         }
         .window-header {
-            background: #0078D7;
+            background: #aaaaaa;
             color: white;
             padding: 8px 12px;
             cursor: move;
@@ -153,6 +153,9 @@
     </div>
     <div id="start-menu">
         <ul>
+            <ul>
+                <li onclick="Leftmenu('shutdown')">×</li>
+            </ul>
             <li onclick="openWindow('paint')">ペイント</li>
             <li onclick="openWindow('camera')">カメラ</li>
             <li onclick="openWindow('voice-recognition')">音声認識</li>
