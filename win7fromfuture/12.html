@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 12</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #5a5a5a, #2c2c2c);
+            overflow: hidden;
+            color: #ffffff;
+        }
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+        }
+        #start-btn {
+            cursor: pointer;
+            background: url('start-icon.png') no-repeat center center;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+        }
+        #taskbar-icons {
+            display: flex;
+            align-items: center;
+        }
+        #taskbar-icons div {
+            margin: 0 10px;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        #start-menu {
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            width: 300px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #start-menu ul li {
+            padding: 14px;
+            cursor: pointer;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        #start-menu ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .window {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            width: 350px;
+            height: 450px;
+            overflow: hidden;
+        }
+        .window-header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .window-header button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+        .window-header button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .window-content {
+            padding: 20px;
+            color: #ffffff;
+            height: calc(100% - 50px);
+            overflow: auto;
+        }
+        button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #005ea6;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div id="taskbar">
+        <div id="start-btn"></div>
+        <div id="taskbar-icons">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="start-menu">
+        <ul>
+            <li onclick="openWindow('paint')">ペイント12</li>
+            <li onclick="openWindow('hologram')">ホログラムビデオ通話</li>
+            <li onclick="openWindow('voice-recognition')">AI音声認識</li>
+            <li onclick="openWindow('cloud-storage')">クラウドストレージ</li>
+            <li onclick="openWindow('teleport')">テレポート設定</li>
+            <li onclick="openWindow('text-editor')">テキストエディタ</li>
+            <li onclick="openWindow('calculator')">電卓</li>
+        </ul>
+    </div>
+    <!-- ペイント -->
+    <div id="paint" class="window">
+        <div class="window-header">
+            <span>ペイント12</span>
+            <div>
+                <button onclick="minimizeWindow('paint')">_</button>
+                <button onclick="maximizeWindow('paint')">[ ]</button>
+                <button onclick="closeWindow('paint')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <canvas id="paint-canvas" style="width: 100%; height: 100%;"></canvas>
+        </div>
+    </div>
+    <!-- ホログラムビデオ通話 -->
+    <div id="hologram" class="window">
+        <div class="window-header">
+            <span>ホログラムビデオ通話</span>
+            <div>
+                <button onclick="minimizeWindow('hologram')">_</button>
+                <button onclick="maximizeWindow('hologram')">[ ]</button>
+                <button onclick="closeWindow('hologram')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <video id="hologram-feed" autoplay style="width: 100%; height: 100%;"></video>
+        </div>
+    </div>
+    <!-- AI音声認識 -->
+    <div id="voice-recognition" class="window">
+        <div class="window-header">
+            <span>AI音声認識</span>
+            <div>
+                <button onclick="minimizeWindow('voice-recognition')">_</button>
+                <button onclick="maximizeWindow('voice-recognition')">[ ]</button>
+                <button onclick="closeWindow('voice-recognition')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <button id="start-recognition">音声認識開始</button>
+            <p id="recognition-result"></p>
+        </div>
+    </div>
+    <!-- クラウドストレージ -->
+    <div id="cloud-storage" class="window">
+        <div class="window-header">
+            <span>クラウドストレージ</span>
+            <div>
+                <button onclick="minimizeWindow('cloud-storage')">_</button>
+                <button onclick="maximizeWindow('cloud-storage')">[ ]</button>
+                <button onclick="closeWindow('cloud-storage')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="file" id="upload-file" />
+            <button onclick="uploadFile()">ファイルをクラウドにアップロード</button>
+        </div>
+    </div>
+    <!-- テレポート設定 -->
+    <div id="teleport" class="window">
+        <div class="window-header">
+            <span>テレポート設定</span>
+            <div>
+                <button onclick="minimizeWindow('teleport')">_</button>
+                <button onclick="maximizeWindow('teleport')">[ ]</button>
+                <button onclick="closeWindow('teleport')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="destination" placeholder="行きたい場所を入力" />
+            <button onclick="startTeleport()">テレポート開始</button>
+        </div>
+    </div>
+    <!-- テキストエディタ -->
+    <div id="text-editor" class="window">
+        <div class="window-header">
+            <span>テキストエディタ</span>
+            <div>
+                <button onclick="minimizeWindow('text-editor')">_</button>
+                <button onclick="maximizeWindow('text-editor')">[ ]</button>
+                <button onclick="closeWindow('text-editor')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <textarea id="editor-area" rows="20" placeholder="ここにテキストを入力..."></textarea>
+            <button onclick="saveText()">保存</button>
+        </div>
+    </div>
+    <!-- 電卓 -->
+    <div id="calculator" class="window">
+        <div class="window-header">
+            <span>電卓</span>
+            <div>
+                <button onclick="minimizeWindow('calculator')">_</button>
+                <button onclick="maximizeWindow('calculator')">[ ]</button>
+                <button onclick="closeWindow('calculator')">X</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <input type="text" id="calc-display" readonly style="text-align: right;" />
+            <div id="calc-buttons">
+                <button onclick="appendNumber('1')">1</button>
+                <button onclick="appendNumber('2')">2</button>
+                <button onclick="appendNumber('3')">3</button>
+                <button onclick="setOperation('+')">+</button><br>
+                <button onclick="appendNumber('4')">4</button>
+                <button onclick="appendNumber('5')">5</button>
+                <button onclick="appendNumber('6')">6</button>
+                <button onclick="setOperation('-')">-</button><br>
+                <button onclick="appendNumber('7')">7</button>
+                <button onclick="appendNumber('8')">8</button>
+                <button onclick="appendNumber('9')">9</button>
+                <button onclick="setOperation('*')">*</button><br>
+                <button onclick="appendNumber('0')">0</button>
+                <button onclick="calculateResult()">=</button>
+                <button onclick="clearDisplay()">C</button>
+                <button onclick="setOperation('/')">/</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ウィンドウ操作関数
+        function openWindow(app) {
+            document.getElementById(app).style.display = 'block';
+            closeStartMenu();
+        }
+        function closeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+        function minimizeWindow(app) {
+            document.getElementById(app).style.display = 'none';
+        }
+        function maximizeWindow(app) {
+            const windowElement = document.getElementById(app);
+            if (windowElement.style.width === '100%') {
+                windowElement.style.width = '350px';
+                windowElement.style.height = '450px';
+                windowElement.style.top = '';
+                windowElement.style.left = '';
+            } else {
+                windowElement.style.width = '100%';
+                windowElement.style.height = '100%';
+                windowElement.style.top = '0';
+                windowElement.style.left = '0';
+            }
+        }
+        function closeStartMenu() {
+            document.getElementById('start-menu').style.display = 'none';
+        }
+        
+        // テキストエディタの保存
+        function saveText() {
+            const text = document.getElementById('editor-area').value;
+            alert('テキストを保存しました:\n' + text);
+        }
+
+        // 電卓機能
+        let operation = '';
+        let firstNumber = '';
+        function appendNumber(num) {
+            document.getElementById('calc-display').value += num;
+        }
+        function setOperation(op) {
+            firstNumber = document.getElementById('calc-display').value;
+            operation = op;
+            document.getElementById('calc-display').value = '';
+        }
+        function calculateResult() {
+            const secondNumber = document.getElementById('calc-display').value;
+            let result;
+            switch(operation) {
+                case '+':
+                    result = parseFloat(firstNumber) + parseFloat(secondNumber);
+                    break;
+                case '-':
+                    result = parseFloat(firstNumber) - parseFloat(secondNumber);
+                    break;
+                case '*':
+                    result = parseFloat(firstNumber) * parseFloat(secondNumber);
+                    break;
+                case '/':
+                    result = parseFloat(firstNumber) / parseFloat(secondNumber);
+                    break;
+            }
+            document.getElementById('calc-display').value = result;
+        }
+        function clearDisplay() {
+            document.getElementById('calc-display').value = '';
+            firstNumber = '';
+            operation = '';
+        }
+        
+        // AI音声認識の開始
+        document.getElementById('start-recognition').onclick = function() {
+            const recognitionResult = document.getElementById('recognition-result');
+            recognitionResult.textContent = '音声認識を開始します... (ここで実際の音声認識を実装する)';
+        };
+        // クラウドストレージへのファイルアップロード
+        function uploadFile() {
+            const fileInput = document.getElementById('upload-file');
+            const file = fileInput.files[0];
+            if (file) {
+                alert(file.name + 'をクラウドにアップロードしました!');
+            } else {
+                alert('ファイルを選択してください。');
+            }
+        }
+        // テレポート開始
+        function startTeleport() {
+            const destination = document.getElementById('destination').value;
+            if (destination) {
+                alert(destination + 'にテレポートします...');
+            } else {
+                alert('テレポート先を入力してください。');
+            }
+        }
+        
+        // スタートメニューのトグル
+        document.getElementById('start-btn').onclick = function() {
+            const startMenu = document.getElementById('start-menu');
+            if (startMenu.style.display === 'none' || startMenu.style.display === '') {
+                startMenu.style.display = 'block';
+            } else {
+                startMenu.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
