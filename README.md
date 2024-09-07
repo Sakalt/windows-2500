@@ -17,3 +17,4 @@ https://chatgpt.com
 (https://sakalt.github.io/windows-2500/win7fromfuture/10.html)
 (https://sakalt.github.io/windows-2500/win7fromfuture/11.html)
 (https://sakalt.github.io/windows-2500/win7fromfuture/12.html)
+[KUZUHA](https://kuzuha.ai/)
